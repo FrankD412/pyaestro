@@ -1,6 +1,6 @@
 """
-The pyaestro module is a collection of general workflow components
+The pyaestro module is a collection of general workflow components.
 
-3
+structures - data structures for managing workflows.
 
 """

@@ -5,9 +5,9 @@ from enum import Enum
 
 
 class EdgeType(Enum):
-    BIDIRECTIONAL         = 0
-    FORWARD_DIRECTIONAL   = 1
-    REVERSE_DIRECTIONAL   = 2
+    BIDIRECTIONAL = 0
+    FORWARD_DIRECTIONAL = 1
+    REVERSE_DIRECTIONAL = 2
 
 
 class Graph(ABC):
@@ -35,11 +35,6 @@ class Graph(ABC):
 
     def bfs(self, src):
         pass
-    
+
     def dfs(self, src):
         pass
-
-
-
-
-    
