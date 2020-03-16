@@ -1,6 +1,13 @@
 from collections import defaultdict
+from enum import Enum
 
-from pyaestro.structures.graphs import EdgeType, Graph
+from pyaestro.abstracts.graphs import Graph
+
+
+class EdgeType(Enum):
+    BIDIRECTIONAL = 0
+    FORWARD_DIRECTIONAL = 1
+    REVERSE_DIRECTIONAL = 2
 
 
 class MultiGraph(Graph):
