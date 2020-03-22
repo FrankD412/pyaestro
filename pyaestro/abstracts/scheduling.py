@@ -18,13 +18,15 @@ class SchedulerAdapter(ABC):
 
         :params kwargs: Settings for this instance of adapter.
         """
-        pass
 
     @abstractmethod
     def get_header(self, resources):
         """
         Generate the header for a scheduler script of this type.
         """
+
+    @abstractmethod
+    def write_script(self, cmd, header=""):
 
     @abstractmethod
     def submit(self, script, workspace):
@@ -35,7 +37,6 @@ class SchedulerAdapter(ABC):
         :params workspace: Working directory for execution.
         :returns: A SubmissionRecord instance.
         """
-        pass
 
     @abstractmethod
     def job_status(self, jobid):
@@ -45,7 +46,6 @@ class SchedulerAdapter(ABC):
         :params jobid: String containing a job identifier.
         :returns: An enumerated job status.
         """
-        pass
 
     @abstractmethod
     def joblist_status(self, joblist):
@@ -55,4 +55,3 @@ class SchedulerAdapter(ABC):
         :params joblist: A list containing strings of job identifiers.
         :returns: A dictionary mapping jobid to job status.
         """
-        pass
