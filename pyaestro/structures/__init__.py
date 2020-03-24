@@ -1,5 +1,6 @@
 """A module of different graph types and other properties."""
 
+__all__ = "Singleton"
 
 class Singleton(type):
     """
