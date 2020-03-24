@@ -7,7 +7,7 @@ class LocalAdapter(SchedulerAdapter, metaclass=Singleton):
     """An interface for executing local processes."""
  
     @abstractmethod
-    def __init__(self, **kwargs):
+    def __init__(self, ):
         """
         Create an instance to interface with a scheduler.
 
@@ -19,9 +19,6 @@ class LocalAdapter(SchedulerAdapter, metaclass=Singleton):
         """
         Generate the header for a scheduler script of this type.
         """
-
-    @abstractmethod
-    def write_script(self, cmd, header=""):
 
     @abstractmethod
     def submit(self, script, workspace):

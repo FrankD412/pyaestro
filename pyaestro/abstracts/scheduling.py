@@ -26,9 +26,6 @@ class SchedulerAdapter(ABC):
         """
 
     @abstractmethod
-    def write_script(self, cmd, header=""):
-
-    @abstractmethod
     def submit(self, script, workspace):
         """
         Submit a script to the system scheduler for execution.
