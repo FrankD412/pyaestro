@@ -1,0 +1,39 @@
+.build/
+dist/
+*egg-info/
+*.DS_Store
+venv
+.output/
+sample_output/
+
+# VSCode
+.vscode
+
+# Doxygen output
+docs/html/
+
+# Testing output
+.tox/
+testing
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+
+*.py[cod]
+__pycache__/
+htmlcov/
+wheelhouse/
+
+pylint_*.txt
+Pipfile.lock
+
+#pycharm
+.idea/
