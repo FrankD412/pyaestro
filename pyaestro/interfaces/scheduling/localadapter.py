@@ -1,13 +1,14 @@
 """A module for local execution."""
 
+
 from pyaestro.abstracts.scheduling import SchedulerAdapter
 from pyaestro.structures import Singleton
 
-class LocalAdapter(SchedulerAdapter, metaclass=Singleton):
+class LocalAdapter(SchedulerAdapter):
     """An interface for executing local processes."""
  
     @abstractmethod
-    def __init__(self, ):
+    def __init__(self, settings):
         """
         Create an instance to interface with a scheduler.
 
