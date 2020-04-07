@@ -44,3 +44,6 @@ class StepRecord:
 
     def write_script(self, path, adapter):
         pass
+
+    def execute(self, cmd, adapter):
+        pass
