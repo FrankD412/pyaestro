@@ -8,28 +8,39 @@ from uuid import uuid4
 
 from pyaestro.abstracts import Singleton
 from pyaestro.structures import MultiRdrWtrDict
-from . import synchronizedclass
+from . import SynchronizedClass
 
 
 class ExecTaskState(Enum):
-    PENDING = 0
-    RUNNING = 1
-    CANCELLED = 2
-    SUCCESS = 3
-    FAILED = 4
+    """An enumeration of possible states for Executor tasks."""
+    SUCCESS = 0
+    INITIALIZED = 1
+    PENDING = 2
+    RUNNING = 3
+    CANCELLED = 4
+    FAILED = 5
 
 
 class ExecCancel(Enum):
+    """An enumeration of possible cancellation returns."""
     SUCCESS = 0
     FAILED = 1
     JOBNOTFOUND = 2
+    TIMEDOUT = 3
+
+
+class ExecSubmit(Enum):
+    """An enumeration of possible submission returns."""
+    SUCCESS = 0
+    FAILED = 1
 
 
 class Executor(metaclass=Singleton):
+    """A class that manages local tasks using asynchronous futures."""
 
     @dataclass(init=False)
-    @synchronizedclass
-    class _Record:
+    class _Record(metaclass=SynchronizedClass):
+        """Executor Record class for tracking futures and processes."""
         uuid:    uuid4
         process: Popen
         future:  Future
@@ -40,10 +51,46 @@ class Executor(metaclass=Singleton):
 
         def __init__(self, uuid):
             self.uuid = uuid
-            self.state = ExecTaskState.PENDING
+            self.state = ExecTaskState.INITIALIZED
+
+        def execute(self, script, cwd, record, args, **kwargs):
+
+            try:
+                self.state = ExecTaskState.RUNNING
+                shell = kwargs.pop("shell", True)
+                env = kwargs.pop("env", None)
+                cmd = [script] + args
+
+                script_name = join(cwd, splitext(basename(script)))
+                stdout = kwargs.get("stdout", f"{script_name}.out")
+                stderr = kwargs.get("stderr", f"{script_name}.err")
+                self.stdout = open(stdout, "wb")
+                self.stderr = open(stderr, "wb")
+
+                self.process = \
+                    Popen(
+                        cmd,
+                        shell=shell, env=env, cwd=cwd,
+                        stdout=self.stdout, stderr=self.stderr,
+                        **kwargs)
+
+                return ExecSubmit.SUCCESS
+            except Exception:
+                return ExecSubmit.FAILED
 
         def cancel(self):
-            pass
+            if self.state == ExecTaskState.PENDING:
+                self.future.cancel()
+                return ExecCancel.SUCCESS
+            elif self.state == ExecTaskState.RUNNING:
+                try:
+                    self.process.kill()
+                    self.process.wait(timeout=20)
+                    return ExecCancel.SUCCESS
+                except TimeoutError:
+                    return ExecCancel.TIMEDOUT
+                except:
+                    return ExecCancel.FAILED
 
         def cleanup_hook(self):
             self.estatus = self.process.returncode
@@ -61,57 +108,42 @@ class Executor(metaclass=Singleton):
         self._statuses = MultiRdrWtrDict()
         self._thread_pool = ThreadPoolExecutor(max_workers=workers)
 
-    def _execute(self, script, cwd, record, **kwargs):
-        shell = kwargs.pop("shell", True)
-        env = kwargs.pop("env", None)
 
-        script_name = join(cwd, splitext(basename(script)))
-        stdout = kwargs.get("stdout", f"{script_name}.out")
-        stderr = kwargs.get("stderr", f"{script_name}.err")
-        record.stdout = open(stdout, "wb")
-        record.stderr = open(stderr, "wb")
-
-        record.process = \
-            Popen(
-                script,
-                shell=shell, env=env, cwd=cwd,
-                stdout=record.stdout, stderr=record.stderr,
-                **kwargs)
-
-        record.state = ExecTaskState.RUNNING
-        self._statuses[str(record.uuid)] = record
-        record.process.wait()
-
-    def submit(self, script, workspace, **kwargs):
+    def submit(self, script, workspace, *args, **kwargs):
         record = Executor._Record(uuid4())
         stdout = kwargs.pop("stdout", None)
         stderr = kwargs.pop("stderr", None)
 
-        record.future = \
-            self._thread_pool.submit(
-                self._execute,
-                script,
-                workspace,
-                record,
-                stdout,
-                stderr,
-                **kwargs
-            )
+        self._statuses[str(record.uuid)] = record
+        self._thread_pool.submit(
+            record.execute,
+            script,
+            workspace,
+            record,
+            args,
+            stdout,
+            stderr,
+            **kwargs
+        )
+
         record.future.add_done_callback(record.cleanup_hook)
         return str(record.uuid)
 
     def cancel(self, taskid):
         if taskid not in self._statuses:
             return ExecCancel.JOBNOTFOUND
-        
-        try:
-            self._statuses[taskid].cancel()
-            return ExecCancel.SUCCESS
-        except:
-            return ExecCancel.FAILED
+        else:
+            return self._statuses[taskid].cancel()
 
     def cancel_all(self):
-        pass
+        for task in self._statuses.values():
+            task.cancel()
 
     def get_status(self, taskid):
         return self._statuses[taskid].state
+
+    def get_all_status(self):
+        return {
+            uuid: record.state
+            for (uuid, record) in self._statuses.items()
+        }
