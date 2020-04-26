@@ -8,6 +8,21 @@ class SubmissionCode(Enum):
     FAILURE = 1
 
 
+class TaskState(Enum):
+    """An enumeration for task state."""
+    BLOCKED = 0
+    PENDING = 1
+    WAITING = 2
+    RUNNING = 3
+    FINISHED = 4
+    FAILED = 5
+    INCOMPLETE = 6
+    HWFAILURE = 7
+    TIMEDOUT = 8
+    UNKNOWN = 9
+    CANCELLED = 10
+
+
 class SchedulerAdapter(ABC):
     """An interface for interacting with system schedulers."""
 
@@ -20,13 +35,13 @@ class SchedulerAdapter(ABC):
         """
 
     @abstractmethod
-    def get_header(self, resources):
+    def get_header(self, shell, resources):
         """
         Generate the header for a scheduler script of this type.
         """
 
     @abstractmethod
-    def submit(self, script, workspace):
+    def submit(self, script, workspace, **kwargs):
         """
         Submit a script to the system scheduler for execution.
 
