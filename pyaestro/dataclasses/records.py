@@ -7,7 +7,7 @@ from pyaestro.abstracts.scheduling import TaskState
 
 
 @dataclass
-class StepRecord:
+class TaskRecord:
     """A class to track a tasks state and record timing information"""
     name: str
     base_name: str
