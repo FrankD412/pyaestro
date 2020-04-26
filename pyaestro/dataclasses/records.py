@@ -2,7 +2,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 from collections import defaultdict
-from enum import Enum
+
+from pyaestro.abstracts.scheduling import TaskState
 
 
 @dataclass
@@ -13,11 +14,11 @@ class StepRecord:
     combination: str
 
     time_ledger: defaultdict(datetime.now)
-    cur_state: StepState
+    cur_state: TaskState
 
     def mark_state(self, state):
         """Mark the state of the step and the time it was marked."""
-        if not isinstance(state, StepState):
+        if not isinstance(state, TaskState):
             raise TypeError("Expected a state of type StepState.")
 
         self.time_ledger[state]
