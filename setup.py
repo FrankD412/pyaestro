@@ -19,7 +19,7 @@ setup(
   extras_require={},
   long_description_content_type='text/markdown',
   download_url='https://pypi.org/project/pyaestro/',
-  python_requires='!=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*',
+  python_requires='>3.4.*',
   classifiers=[
     'Development Status :: 5 - Production/Stable',
     'Operating System :: Unix',
