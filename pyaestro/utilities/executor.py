@@ -8,7 +8,8 @@ from uuid import uuid4
 
 from pyaestro.abstracts import Singleton
 from pyaestro.structures import MultiRdrWtrDict
-from . import SynchronizedClass
+from pyaestro.abstracts.metaclasses import SynchronizedClass
+# from . import synchronized_class
 
 
 class ExecTaskState(Enum):
@@ -49,8 +50,8 @@ class Executor(metaclass=Singleton):
         estatus: int
         state:  ExecTaskState
 
-        def __init__(self, uuid):
-            self.uuid = uuid
+        def __init__(self):
+            self.uuid = uuid4()
             self.state = ExecTaskState.INITIALIZED
 
         def execute(self, script, cwd, record, args, **kwargs):
@@ -110,7 +111,7 @@ class Executor(metaclass=Singleton):
 
 
     def submit(self, script, workspace, *args, **kwargs):
-        record = Executor._Record(uuid4())
+        record = Executor._Record()
         stdout = kwargs.pop("stdout", None)
         stderr = kwargs.pop("stderr", None)
 
