@@ -6,9 +6,8 @@ from os.path import basename, join, splitext
 from subprocess import Popen
 from uuid import uuid4
 
-from pyaestro.abstracts import Singleton
+from pyaestro.abstracts.metaclasses import Singleton, SynchronizedClass
 from pyaestro.structures import MultiRdrWtrDict
-from pyaestro.abstracts.metaclasses import SynchronizedClass
 # from . import synchronized_class
 
 
@@ -39,7 +38,7 @@ class ExecSubmit(Enum):
 class Executor(metaclass=Singleton):
     """A class that manages local tasks using asynchronous futures."""
 
-    @dataclass(init=False)
+    @dataclass
     class _Record(metaclass=SynchronizedClass):
         """Executor Record class for tracking futures and processes."""
         uuid:    uuid4
@@ -57,7 +56,6 @@ class Executor(metaclass=Singleton):
         def execute(self, script, cwd, record, args, **kwargs):
 
             try:
-                self.state = ExecTaskState.RUNNING
                 shell = kwargs.pop("shell", True)
                 env = kwargs.pop("env", None)
                 cmd = [script] + args
@@ -75,6 +73,7 @@ class Executor(metaclass=Singleton):
                         stdout=self.stdout, stderr=self.stderr,
                         **kwargs)
 
+                self.state = ExecTaskState.RUNNING
                 return ExecSubmit.SUCCESS
             except Exception:
                 return ExecSubmit.FAILED

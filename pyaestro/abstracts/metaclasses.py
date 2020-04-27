@@ -42,6 +42,8 @@ class SynchronizedClass(type):
                 sync(getattr(sync_cls, method[0]))
             )
 
+        return sync_cls
+
     @classmethod
     def synchronize(cls, lock):
         def _synchronize(func):
