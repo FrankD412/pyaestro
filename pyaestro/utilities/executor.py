@@ -4,11 +4,11 @@ from enum import Enum
 import _io
 from os.path import basename, join, splitext
 from subprocess import Popen
+import time
 from uuid import uuid4
 
 from pyaestro.abstracts.metaclasses import Singleton, SynchronizedClass
 from pyaestro.structures import MultiRdrWtrDict
-# from . import synchronized_class
 
 
 class ExecTaskState(Enum):
@@ -52,17 +52,19 @@ class Executor(metaclass=Singleton):
         def __init__(self):
             self.uuid = uuid4()
             self.state = ExecTaskState.INITIALIZED
+            self.process = None
 
-        def execute(self, script, cwd, record, args, **kwargs):
-
+        def execute(self, script, cwd, record, *args, **kwargs):
+            print(f"RUNING {record.uuid}")
+            print(args)
             try:
                 shell = kwargs.pop("shell", True)
                 env = kwargs.pop("env", None)
-                cmd = [script] + args
+                cmd = [script] + list(*args)
+                stdout = kwargs.pop("stdout", f"{record.uuid}.out")
+                stderr = kwargs.pop("stderr", f"{record.uuid}.err")
 
-                script_name = join(cwd, splitext(basename(script)))
-                stdout = kwargs.get("stdout", f"{script_name}.out")
-                stderr = kwargs.get("stderr", f"{script_name}.err")
+                print("CMD: ", cmd)
                 self.stdout = open(stdout, "wb")
                 self.stderr = open(stderr, "wb")
 
@@ -76,7 +78,7 @@ class Executor(metaclass=Singleton):
                 self.state = ExecTaskState.RUNNING
                 return ExecSubmit.SUCCESS
             except Exception:
-                return ExecSubmit.FAILED
+                raise
 
         def cancel(self):
             if self.state == ExecTaskState.PENDING:
@@ -92,10 +94,10 @@ class Executor(metaclass=Singleton):
                 except:
                     return ExecCancel.FAILED
 
-        def cleanup_hook(self):
-            self.estatus = self.process.returncode
+        def cleanup(self):
+            self.estatus = self.process.poll()
 
-            if self.estart != 0:
+            if self.estatus != 0:
                 self.state = ExecTaskState.FAILED
             else:
                 self.state = ExecTaskState.SUCCESS
@@ -104,6 +106,10 @@ class Executor(metaclass=Singleton):
             self.stdout.close()
             self.stderr.close()
 
+        @staticmethod
+        def cleanup_hook(future):
+            future.record.cleanup()
+
     def __init__(self, workers):
         self._statuses = MultiRdrWtrDict()
         self._thread_pool = ThreadPoolExecutor(max_workers=workers)
@@ -111,39 +117,42 @@ class Executor(metaclass=Singleton):
 
     def submit(self, script, workspace, *args, **kwargs):
         record = Executor._Record()
-        stdout = kwargs.pop("stdout", None)
-        stderr = kwargs.pop("stderr", None)
+        
+        script_name = join(workspace, splitext(basename(script))[0])
+        stdout = kwargs.get("stdout", f"{script_name}.out")
+        stderr = kwargs.get("stderr", f"{script_name}.err")
 
-        self._statuses[str(record.uuid)] = record
-        self._thread_pool.submit(
+        future = self._thread_pool.submit(
             record.execute,
             script,
             workspace,
             record,
             args,
-            stdout,
-            stderr,
+            stdout=stdout,
+            stderr=stderr,
             **kwargs
         )
 
-        record.future.add_done_callback(record.cleanup_hook)
+        future.record = record
+        future.add_done_callback(self._Record.cleanup_hook)
+        self._statuses[str(record.uuid)] = future
         return str(record.uuid)
 
     def cancel(self, taskid):
         if taskid not in self._statuses:
             return ExecCancel.JOBNOTFOUND
         else:
-            return self._statuses[taskid].cancel()
+            return self._statuses[taskid].record.cancel()
 
     def cancel_all(self):
         for task in self._statuses.values():
-            task.cancel()
+            task.record.cancel()
 
     def get_status(self, taskid):
-        return self._statuses[taskid].state
+        return self._statuses[taskid].record.state
 
     def get_all_status(self):
         return {
-            uuid: record.state
-            for (uuid, record) in self._statuses.items()
+            uuid: future.record.state
+            for (uuid, future) in self._statuses.items()
         }
