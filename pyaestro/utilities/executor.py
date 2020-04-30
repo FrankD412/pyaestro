@@ -39,7 +39,7 @@ class Executor(metaclass=Singleton):
     """A class that manages local tasks using asynchronous futures."""
 
     @dataclass
-    class _Record(metaclass=SynchronizedClass):
+    class _Record:
         """Executor Record class for tracking futures and processes."""
         uuid:    uuid4
         process: Popen
@@ -60,7 +60,7 @@ class Executor(metaclass=Singleton):
             try:
                 shell = kwargs.pop("shell", True)
                 env = kwargs.pop("env", None)
-                cmd = [script] + list(*args)
+                cmd = " ".join([script] + list(*args))
                 stdout = kwargs.pop("stdout", f"{record.uuid}.out")
                 stderr = kwargs.pop("stderr", f"{record.uuid}.err")
 
@@ -76,7 +76,8 @@ class Executor(metaclass=Singleton):
                         **kwargs)
 
                 self.state = ExecTaskState.RUNNING
-                return ExecSubmit.SUCCESS
+                self.process.communicate()
+
             except Exception:
                 raise
 
@@ -95,7 +96,8 @@ class Executor(metaclass=Singleton):
                     return ExecCancel.FAILED
 
         def cleanup(self):
-            self.estatus = self.process.poll()
+            print("Starting clean up hook...")
+            self.estatus = self.process.wait()
 
             if self.estatus != 0:
                 self.state = ExecTaskState.FAILED
