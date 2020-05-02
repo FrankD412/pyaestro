@@ -39,7 +39,7 @@ class Executor(metaclass=Singleton):
     """A class that manages local tasks using asynchronous futures."""
 
     @dataclass
-    class _Record:
+    class _Record(metaclass=SynchronizedClass):
         """Executor Record class for tracking futures and processes."""
         uuid:    uuid4
         process: Popen
@@ -55,16 +55,13 @@ class Executor(metaclass=Singleton):
             self.process = None
 
         def execute(self, script, cwd, record, *args, **kwargs):
-            print(f"RUNING {record.uuid}")
-            print(args)
             try:
                 shell = kwargs.pop("shell", True)
                 env = kwargs.pop("env", None)
                 cmd = " ".join([script] + list(*args))
+
                 stdout = kwargs.pop("stdout", f"{record.uuid}.out")
                 stderr = kwargs.pop("stderr", f"{record.uuid}.err")
-
-                print("CMD: ", cmd)
                 self.stdout = open(stdout, "wb")
                 self.stderr = open(stderr, "wb")
 
@@ -76,6 +73,7 @@ class Executor(metaclass=Singleton):
                         **kwargs)
 
                 self.state = ExecTaskState.RUNNING
+                self.__lock__.release()
                 self.process.communicate()
 
             except Exception:
@@ -119,10 +117,8 @@ class Executor(metaclass=Singleton):
 
     def submit(self, script, workspace, *args, **kwargs):
         record = Executor._Record()
-        
-        script_name = join(workspace, splitext(basename(script))[0])
-        stdout = kwargs.get("stdout", f"{script_name}.out")
-        stderr = kwargs.get("stderr", f"{script_name}.err")
+        stdout = kwargs.get("stdout", f"local-{record.uuid}.out")
+        stderr = kwargs.get("stderr", f"local-{record.uuid}.err")
 
         future = self._thread_pool.submit(
             record.execute,
