@@ -1,2 +1,9 @@
+# Manual testing/Performance
 ipython
 pyperformance
+
+# Style linting
+pre-commit
+flake8
+pylint
+pydocstyle
