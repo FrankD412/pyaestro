@@ -1,18 +1,15 @@
 """Executor utility module for locally scheduled tasks."""
 
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from enum import Enum
 import _io
-from os.path import basename, join, splitext
 from subprocess import Popen
-import time
 from uuid import uuid4
 
 from pyaestro.abstracts.metaclasses import Singleton, SynchronizedClass
 from pyaestro.structures import MultiRdrWtrDict
 
-from pprint import pprint
 
 class ExecTaskState(Enum):
     """An enumeration of possible states for Executor tasks."""
@@ -126,7 +123,7 @@ class Executor(metaclass=Singleton):
                 except TimeoutError:
                     self.state = ExecTaskState.UNKNOWN
                     return ExecCancel.TIMEDOUT
-                except:
+                except Exception:
                     self.state = ExecTaskState.UNKNOWN
                     return ExecCancel.FAILED
 
