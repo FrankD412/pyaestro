@@ -1,8 +1,7 @@
-from pprint import pprint
 import os
 from pprint import pprint
 from random import randint, random
-from time import sleep 
+from time import sleep
 
 from pyaestro.utilities.executor import Executor, ExecTaskState
 
@@ -20,7 +19,7 @@ n = 30
 
 # Setup
 os.makedirs(ws, exist_ok=True)
-executor = Executor(max_workers) 
+executor = Executor(max_workers)
 jobids = []
 
 # Start processes
@@ -29,21 +28,23 @@ for i in range(0, n):
     if p_fail > fail_rate:
         print("Running a success.")
         jobid = executor.submit(
-            success, ws, str(randint(j_min, j_max))) 
+            success, ws, str(randint(j_min, j_max)))
     else:
         print("Running a failure.")
         jobid = executor.submit(
             fail, ws, str(randint(j_min, j_max)))
 
     jobids.append(jobid)
-    print("JOBID: ", jobid, " -- ", executor.get_status(jobid)) 
+    print("JOBID: ", jobid, " -- ", executor.get_status(jobid))
     print(f"{i}: Looping...")
 
-    for uuid, state in executor.get_all_status():
-        if state == ExecTaskState.RUNNING:
-            executor.cancel(uuid)
+pprint(dict(executor.get_all_status()))
 
-    while True:
-        print("Waiting...")
-        print(executor.get_all_status())
-        sleep(30)
+for uuid, state in executor.get_all_status():
+    if state == ExecTaskState.RUNNING:
+        executor.cancel(uuid)
+
+while True:
+    print("Waiting...")
+    print(executor.get_all_status())
+    sleep(30)
