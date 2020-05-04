@@ -1,20 +1,47 @@
-from pyaestro.utilities.executor import Executor
-from time import sleep
-from random import randint
+from pprint import pprint
+import os
+from pprint import pprint
+from random import randint, random
+from time import sleep 
 
-if __name__ == "__main__":
-    script = '/mnt/f/Code/Python/pyaestro/tests/scripts/sleep.sh'
-    ws = '/mnt/f/Code/Python/pyaestro/tests/scripts'
-    n = 30
+from pyaestro.utilities.executor import Executor, ExecTaskState
 
-    executor = Executor(4)
-    jobid = []
+# Pathing
+success = './tests/scripts/sleep.sh'
+fail = './tests/scripts/fail.sh'
+ws = './workspace'
 
-    for i in range(0, n):
-        jobid.append(executor.submit(script, ws, str(randint(5, 100))))
-        print("JOBID: ", jobid[i], " -- ", executor.get_status(jobid[i]))
-        print(f"{i}: Looping...")
-        
+# Configuration
+j_min = 5    # seconds
+j_max = 300  # seconds
+fail_rate = 0.15
+max_workers = 4
+n = 30
+
+# Setup
+os.makedirs(ws, exist_ok=True)
+executor = Executor(max_workers) 
+jobids = []
+
+# Start processes
+for i in range(0, n):
+    p_fail = random()
+    if p_fail > fail_rate:
+        print("Running a success.")
+        jobid = executor.submit(
+            success, ws, str(randint(j_min, j_max))) 
+    else:
+        print("Running a failure.")
+        jobid = executor.submit(
+            fail, ws, str(randint(j_min, j_max)))
+
+    jobids.append(jobid)
+    print("JOBID: ", jobid, " -- ", executor.get_status(jobid)) 
+    print(f"{i}: Looping...")
+
+    for uuid, state in executor.get_all_status():
+        if state == ExecTaskState.RUNNING:
+            executor.cancel(uuid)
 
     while True:
         print("Waiting...")
