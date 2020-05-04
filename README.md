@@ -1,4 +1,4 @@
-In order to test the Executor utility class, you'll need the two bash 
+In order to test the Executor utility class, you'll need the two bash
 scripts provided in the `tests/scripts` directory.
 The first represents a process that's successful.
 
@@ -20,13 +20,13 @@ exit 1
 In order to start testing, install the wheel as follows along with the
 `requirements.txt`:
 ```
-pip install 
+pip install
 pip install -r requirements.txt
 ```
 
 Once installed, go ahead and start `ipython`.
 
-Both scripts represent variable length user processes that naturally are 
+Both scripts represent variable length user processes that naturally are
 submitted and that could either succeed or fail. We will start `n` total
 instances, with a `max_worker` count of `4`.
 
@@ -35,7 +35,7 @@ from pprint import pprint
 import os
 from pprint import pprint
 from random import randint, random
-from time import sleep 
+from time import sleep
 
 from pyaestro.utilities.executor import Executor
 
@@ -53,7 +53,7 @@ n = 30
 
 # Setup
 os.makedirs(ws, exist_ok=True)
-executor = Executor(max_workers) 
+executor = Executor(max_workers)
 jobids = []
 
 # Start processes
@@ -62,14 +62,14 @@ for i in range(0, n):
     if p_fail > fail_rate:
         print("Running a success.")
         jobid = executor.submit(
-            success, ws, str(randint(j_min, j_max))) 
+            success, ws, str(randint(j_min, j_max)))
     else:
         print("Running a failure.")
         jobid = executor.submit(
             fail, ws, str(randint(j_min, j_max)))
 
     jobids.append(jobid)
-    print("JOBID: ", jobid, " -- ", executor.get_status(jobid)) 
+    print("JOBID: ", jobid, " -- ", executor.get_status(jobid))
     print(f"{i}: Looping...")
 ```
 
@@ -120,13 +120,13 @@ for i in range(0, randint(5, n)):
     p_fail = random()
     if p_fail > fail_rate:
         jobid = executor.submit(
-            success, ws, str(randint(j_min, j_max))) 
+            success, ws, str(randint(j_min, j_max)))
     else:
         jobid = executor.submit(
             fail, ws, str(randint(j_min, j_max)))
 
     jobids.append(jobid)
-    print("JOBID: ", jobid, " -- ", executor.get_status(jobid)) 
+    print("JOBID: ", jobid, " -- ", executor.get_status(jobid))
     print(f"{i}: Looping...")
 ```
 
