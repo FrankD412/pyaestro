@@ -4,6 +4,8 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from enum import Enum
 import _io
+from os.path import abspath, join
+from psutil import Process, NoSuchProcess, TimeoutExpired
 from subprocess import Popen
 from uuid import uuid4
 
@@ -77,9 +79,9 @@ class Executor(metaclass=Singleton):
                 stderr = kwargs.pop("stderr", f"{self.uuid}.err")
 
                 # Set up core arguments (cmd, stdout, stderr)
-                cmd = " ".join([script] + list(*args))
-                self.stdout = open(stdout, "wb")
-                self.stderr = open(stderr, "wb")
+                cmd = " ".join([abspath(script)] + list(*args))
+                self.stdout = open(join(cwd, stdout), "wb")
+                self.stderr = open(join(cwd, stderr), "wb")
 
                 # Start the new process.
                 self.process = \
@@ -102,12 +104,14 @@ class Executor(metaclass=Singleton):
                 # DO NOT use a wait -- that blocks and prevents the GIL
                 # from moving forward.
                 self.process.communicate()
+                # Reacquire the lock.. this is ugly but..
+                self.__lock__.acquire()
 
             except Exception:
                 self.state = ExecTaskState.FAILED
                 raise
 
-        def cancel(self):
+        def cancel(self, future):
             """
             Cancel the task represented by the _Record instance.
 
@@ -116,24 +120,29 @@ class Executor(metaclass=Singleton):
             """
             # If we find that the future is done, just return success.
             if future.done():
-                print("FOUND DONE: SUCCESS")
                 return ExecCancel.SUCCESS
             # If we haven't started running yet, cancel from the future.
             elif not future.running():
-                print("NOT RUNNING << PENDING")
                 future.record.state = ExecTaskState.CANCELLED
                 future.cancel()
                 return ExecCancel.SUCCESS
             else:
-                print("RUNNING")
                 try:
-                    self.process.kill()
-                    self.process.wait(timeout=20)
+                    procs = Process(self.process.pid).children()
                     self.state = ExecTaskState.CANCELLED
+                    for child in procs:
+                        child.terminate()
+
+                    dead, alive = psutil.wait_procs(procs, timeout=3)
+                    for child in alive:
+                        child.kill()
+
                     return ExecCancel.SUCCESS
-                except TimeoutError:
+                except TimeoutExpired:
                     self.state = ExecTaskState.UNKNOWN
                     return ExecCancel.TIMEDOUT
+                except NoSuchProcess:
+                    return ExecCancel.SUCCESS
                 except Exception:
                     self.state = ExecTaskState.UNKNOWN
                     return ExecCancel.FAILED
@@ -231,8 +240,21 @@ class Executor(metaclass=Singleton):
         return c_status
 
     def cancel_all(self):
-        for task in self._statuses.keys():
-            self.cancel(task)
+        running = []
+        # We need to handle pending separately. The thread pool seems
+        # to be fast enough at starting a new job that by the time
+        # a running job is cancelled, a pending one has started and
+        # cannot be cancelled through the future. To prevent this, we
+        # need to cancel pending jobs first to prevent the cascade.
+        for future in self._statuses.values():
+            state = future.record.state
+            if state == ExecTaskState.RUNNING:
+                running.append(future)
+            else:
+                future.record.cancel(future)
+
+        for future in running:
+            future.record.cancel(future)
 
     def get_status(self, taskid):
         """
