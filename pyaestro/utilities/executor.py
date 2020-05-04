@@ -104,6 +104,7 @@ class Executor(metaclass=Singleton):
                 self.process.communicate()
 
             except Exception:
+                self.state = ExecTaskState.FAILED
                 raise
 
         def cancel(self):
@@ -113,8 +114,18 @@ class Executor(metaclass=Singleton):
             :returns: An ExecCancel enum representing the exit status
              of the cancel command.
             """
-
-            if self.state == ExecTaskState.RUNNING:
+            # If we find that the future is done, just return success.
+            if future.done():
+                print("FOUND DONE: SUCCESS")
+                return ExecCancel.SUCCESS
+            # If we haven't started running yet, cancel from the future.
+            elif not future.running():
+                print("NOT RUNNING << PENDING")
+                future.record.state = ExecTaskState.CANCELLED
+                future.cancel()
+                return ExecCancel.SUCCESS
+            else:
+                print("RUNNING")
                 try:
                     self.process.kill()
                     self.process.wait(timeout=20)
@@ -127,9 +138,14 @@ class Executor(metaclass=Singleton):
                     self.state = ExecTaskState.UNKNOWN
                     return ExecCancel.FAILED
 
-        def cleanup(self):
+        def cleanup(self, future):
             """Clean up method to close out a record instance."""
             if self.state == ExecTaskState.CANCELLED:
+                return
+
+            if future.exception():
+                self.estatus = 127
+                self.state = ExecTaskState.FAILED
                 return
 
             self.estatus = self.process.wait()
@@ -139,10 +155,6 @@ class Executor(metaclass=Singleton):
             else:
                 self.state = ExecTaskState.SUCCESS
 
-            # Clean up open log pointers.
-            self.stdout.close()
-            self.stderr.close()
-
         @staticmethod
         def cleanup_hook(future):
             """
@@ -151,7 +163,7 @@ class Executor(metaclass=Singleton):
             :param future: Future instance to clean up.
             """
             # Call clean up on the record in the future.
-            future.record.cleanup()
+            future.record.cleanup(future)
 
     def __init__(self, workers):
         """An Executor that mimics scheduler-like behavior locally."""
@@ -211,24 +223,12 @@ class Executor(metaclass=Singleton):
         """
         # If the job identifier isn't status, return JOBNOTFOUND
         if taskid not in self._statuses:
-            return ExecCancel.JOBNOTFOUND
+            c_status = ExecCancel.JOBNOTFOUND
         else:
-            # We need to check the future to see if it's executing.
             future = self._statuses[taskid]
-            # If we find that the future is done, just return success.
-            if future.done():
-                print("FOUND DONE: SUCCESS")
-                return ExecCancel.SUCCESS
-            # If we haven't started running yet, cancel from the future.
-            elif not future.running():
-                print("NOT RUNNING << PENDING")
-                future.record.state = ExecTaskState.CANCELLED
-                future.cancel()
-                return ExecCancel.SUCCESS
-            else:
-                print("RUNNING")
-                # Otherwise, return the status of the cancel call.
-                return self._statuses[taskid].record.cancel()
+            c_status = future.record.cancel(future)
+        
+        return c_status
 
     def cancel_all(self):
         for task in self._statuses.keys():
