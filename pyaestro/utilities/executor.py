@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from enum import Enum
 import _io
 from os.path import abspath, join
-from psutil import Process, NoSuchProcess, TimeoutExpired
+from psutil import Process, NoSuchProcess, TimeoutExpired, wait_procs
 from subprocess import Popen
 from uuid import uuid4
 
@@ -133,7 +133,7 @@ class Executor(metaclass=Singleton):
                     for child in procs:
                         child.terminate()
 
-                    dead, alive = psutil.wait_procs(procs, timeout=3)
+                    dead, alive = wait_procs(procs, timeout=3)
                     for child in alive:
                         child.kill()
 
@@ -236,7 +236,7 @@ class Executor(metaclass=Singleton):
         else:
             future = self._statuses[taskid]
             c_status = future.record.cancel(future)
-        
+
         return c_status
 
     def cancel_all(self):
