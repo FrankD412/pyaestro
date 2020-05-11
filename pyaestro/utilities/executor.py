@@ -9,6 +9,7 @@ from psutil import Process, NoSuchProcess, TimeoutExpired, wait_procs
 from subprocess import Popen
 from uuid import uuid4
 
+from pyaestro.abstracts.scheduling import SingletonExecutor
 from pyaestro.abstracts.metaclasses import Singleton, SynchronizedClass
 from pyaestro.structures import MultiRdrWtrDict
 
@@ -38,7 +39,7 @@ class ExecSubmit(Enum):
     FAILED = 1
 
 
-class Executor(metaclass=Singleton):
+class ProcessExecutor(SingletonExecutor):
     """A class that manages local tasks using asynchronous futures."""
 
     @dataclass
