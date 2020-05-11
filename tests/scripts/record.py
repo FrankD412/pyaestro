@@ -3,7 +3,7 @@ from pprint import pprint
 from random import randint, random
 from time import sleep
 
-from pyaestro.utilities.executor import Executor, ExecTaskState
+from pyaestro.utilities.executor import ProcessExecutor, ExecTaskState
 
 # Pathing
 success = './tests/scripts/sleep.sh'
@@ -19,7 +19,7 @@ n = 30
 
 # Setup
 os.makedirs(ws, exist_ok=True)
-executor = Executor(max_workers)
+executor = ProcessExecutor(max_workers)
 jobids = []
 
 # Start processes
