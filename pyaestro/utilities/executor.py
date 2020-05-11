@@ -197,7 +197,7 @@ class ProcessExecutor(SingletonExecutor):
         :returns: A string containing the unique job identifier.
         """
         # Create a new _Record instance to track the submission.
-        record = Executor._Record()
+        record = ProcessExecutor._Record()
         # Setup the stdout and stderr logging.
         stdout = kwargs.get("stdout", f"local-{record.uuid}.out")
         stderr = kwargs.get("stderr", f"local-{record.uuid}.err")
