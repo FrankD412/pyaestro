@@ -53,7 +53,7 @@ n = 30
 
 # Setup
 os.makedirs(ws, exist_ok=True)
-executor = Executor(max_workers)
+executor = ProcessExecutor(max_workers)
 jobids = []
 
 # Start processes
