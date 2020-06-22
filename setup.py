@@ -1,6 +1,19 @@
 from pyaestro import __version__
 from setuptools import setup, find_packages
 
+
+def load_readme():
+    """
+    Load the readme from the root of the package directory.
+
+    :returns: A string containing the contents of README.md.
+    """
+    pkg_path = path.abspath(path.dirname(__file__))
+    with open(path.join(pkg_path, 'README.md')) as f:
+        long_description = f.read()
+
+    return long_description
+
 setup(
   name='pyaestro',
   description='A package of utilities structures for building workflows'
