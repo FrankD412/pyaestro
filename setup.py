@@ -1,5 +1,7 @@
-from pyaestro import __version__
+from os import path
 from setuptools import setup, find_packages
+
+from pyaestro import __version__
 
 
 def load_readme():
@@ -30,6 +32,7 @@ setup(
   },
   install_requires=[],
   extras_require={},
+  long_description=load_readme(),
   long_description_content_type='text/markdown',
   download_url='https://pypi.org/project/pyaestro/',
   python_requires='>3.4.*',
