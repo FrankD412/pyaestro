@@ -9,7 +9,7 @@ from psutil import Process, NoSuchProcess, TimeoutExpired, wait_procs
 from subprocess import Popen
 from uuid import uuid4
 
-from pyaestro.abstracts.metaclasses import Singleton, SynchronizedClass
+from pyaestro.metaclasses import Singleton, SynchronizedClass
 from pyaestro.structures import MultiRdrWtrDict
 
 
