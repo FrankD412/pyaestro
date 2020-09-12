@@ -37,3 +37,7 @@ Pipfile.lock
 
 #pycharm
 .idea/
+
+# Test/Build generated files
+workspace
+build
