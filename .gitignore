@@ -1,4 +1,4 @@
-.build/
+build/
 dist/
 *egg-info/
 *.DS_Store
@@ -37,7 +37,3 @@ Pipfile.lock
 
 #pycharm
 .idea/
-
-# Test/Build generated files
-workspace
-build
