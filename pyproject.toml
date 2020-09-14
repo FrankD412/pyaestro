@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "pyaestro"
+version = "0.0.1a"
+description = "A package of utilities structures for building workflows and workflow related tools."
+authors = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
+maintainers = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">3.4"
+psutil = "*"
+coloredlogs = "*"
+
+[tool.poetry.dev-dependencies]
+flake8 = "*"
+pydocstyle = "*"
+pylint = "*"
+pre-commit = "*"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
