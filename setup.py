@@ -30,7 +30,10 @@ setup(
   entry_points={
     'console_scripts': []
   },
-  install_requires=[],
+  install_requires=[
+    "psutil",
+    "coloredlogs",
+  ],
   extras_require={},
   long_description=load_readme(),
   long_description_content_type='text/markdown',

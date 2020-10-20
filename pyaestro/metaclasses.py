@@ -1,3 +1,5 @@
+"""A module dedicated to utility metaclasses."""
+
 from functools import wraps
 import inspect
 from threading import RLock
