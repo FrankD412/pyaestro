@@ -1,11 +1,18 @@
 """"""
-from abc import ABC, abstractmethod
+from abc import ABC, abstractclassmethod
 
-class MpiAdapter(ABC):
+
+class MpiMixIn(ABC):
     """An interface for creating MPI enabled commands."""
-    def __init__(self):
+
+    @abstractclassmethod
+    def mpi_command(self, resources, cluster_config=None) -> str:
         pass
 
-    @abstractmethod
-    def substitute_cmd(self, cmd, resources):
+    @abstractclassmethod
+    def rank_variable(cls):
+        pass
+
+    @abstractclassmethof
+    def remaining_walltime(cls):
         pass
