@@ -128,12 +128,14 @@ class Executor(metaclass=Singleton):
                 return ExecCancel.SUCCESS
             else:
                 try:
-                    procs = Process(self.process.pid).children()
+                    parent = Process(self.process.pid)
+                    children = parent.children(recursive=True)
+                    children.append(parent)
                     self.state = ExecTaskState.CANCELLED
-                    for child in procs:
+                    for child in children:
                         child.terminate()
 
-                    dead, alive = wait_procs(procs, timeout=3)
+                    dead, alive = wait_procs(children, timeout=3)
                     for child in alive:
                         child.kill()
 
