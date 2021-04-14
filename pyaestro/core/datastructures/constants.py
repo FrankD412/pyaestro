@@ -11,9 +11,24 @@ class EdgeType(Enum):
 
     @staticmethod
     def is_reverse_type(edge_type:EdgeType) -> bool:
+        """[summary]
+
+        Args:
+            edge_type (EdgeType): [description]
+
+        Returns:
+            bool: [description]
+        """
+
         if "reverse" in edge_type.value:
             return True
         return False
+
+
+class EdgeProperty(Enum):
+    FORWARD = 0
+    BACKWARD = 1
+    
 
 
 class GraphSearchType(Enum):

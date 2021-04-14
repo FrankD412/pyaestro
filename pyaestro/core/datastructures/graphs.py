@@ -10,7 +10,7 @@ class MultiGraph(Graph):
 
     def __init__(self, edge_type=EdgeType.BIDIRECTIONAL):
         self._vertices = {}
-        self._edges = defaultdict(set)
+        self._edges = defaultdict(defaultdict(set))
         self._layers = {
             "__default__": edge_type
         }
