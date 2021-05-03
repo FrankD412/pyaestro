@@ -1,34 +1,27 @@
 from __future__ import annotations
 from enum import Enum
+from typing import List, Set, Union
 
+class EdgeProperty(Enum):
+    ACYCLIC = 0
+    FORWARD = 1
+    BACKWARD = 2
+    BIDIRECTION = 3
+    WEIGHTED = 4
 
-class EdgeType(Enum):
-    BIDIRECTIONAL = "bidirectional"
-    FORWARD = "forward"
-    REVERSE = "reverse"
-    FORWARD_ACYCLIC = "forward acyclic"
-    REVERSE_ACYCLIC = "reverse acyclic"
-
-    @staticmethod
-    def is_reverse_type(edge_type:EdgeType) -> bool:
+    @classmethod
+    def reconile_properties(
+            cls, properties: Union[List[EdgeProperty], Set[EdgeProperty]]
+        ) -> Set[EdgeProperty]:
         """[summary]
 
         Args:
-            edge_type (EdgeType): [description]
+            properties (Union[List[EdgeProperty], Set[EdgeProperty]]): [description]
 
         Returns:
-            bool: [description]
+            Set[EdgeProperty]: [description]
         """
-
-        if "reverse" in edge_type.value:
-            return True
-        return False
-
-
-class EdgeProperty(Enum):
-    FORWARD = 0
-    BACKWARD = 1
-    
+        ...
 
 
 class GraphSearchType(Enum):
