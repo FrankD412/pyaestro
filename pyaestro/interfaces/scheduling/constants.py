@@ -8,6 +8,7 @@ class SubmissionCode(Enum):
 
 class TaskState(Enum):
     """An enumeration for task state."""
+
     BLOCKED = 0
     PENDING = 1
     WAITING = 2

@@ -15,6 +15,7 @@ from pyaestro.structures import MultiRdrWtrDict
 
 class ExecTaskState(Enum):
     """An enumeration of possible states for Executor tasks."""
+
     SUCCESS = 0
     INITIALIZED = 1
     PENDING = 2
@@ -26,6 +27,7 @@ class ExecTaskState(Enum):
 
 class ExecCancel(Enum):
     """An enumeration of possible cancellation returns."""
+
     SUCCESS = 0
     FAILED = 1
     JOBNOTFOUND = 2
@@ -34,6 +36,7 @@ class ExecCancel(Enum):
 
 class ExecSubmit(Enum):
     """An enumeration of possible submission returns."""
+
     SUCCESS = 0
     FAILED = 1
 
@@ -44,12 +47,13 @@ class Executor(metaclass=Singleton):
     @dataclass
     class _Record(metaclass=SynchronizedClass):
         """Executor Record class for tracking futures and processes."""
-        uuid:    uuid4
+
+        uuid: uuid4
         process: Popen
-        stdout:  _io.TextIOWrapper
-        stderr:  _io.TextIOWrapper
+        stdout: _io.TextIOWrapper
+        stderr: _io.TextIOWrapper
         estatus: int
-        state:  ExecTaskState
+        state: ExecTaskState
 
         def __init__(self):
             """Initialize a new record with a uuid and initial state."""
@@ -84,12 +88,15 @@ class Executor(metaclass=Singleton):
                 self.stderr = open(join(cwd, stderr), "wb")
 
                 # Start the new process.
-                self.process = \
-                    Popen(
-                        cmd,
-                        shell=shell, env=env, cwd=cwd,
-                        stdout=self.stdout, stderr=self.stderr,
-                        **kwargs)
+                self.process = Popen(
+                    cmd,
+                    shell=shell,
+                    env=env,
+                    cwd=cwd,
+                    stdout=self.stdout,
+                    stderr=self.stderr,
+                    **kwargs,
+                )
 
                 # Initalize the record's state to RUNNING since
                 # Popen was called.
@@ -213,7 +220,7 @@ class Executor(metaclass=Singleton):
             args,
             stdout=stdout,
             stderr=stderr,
-            **kwargs
+            **kwargs,
         )
         # Add the record to the returned future.
         future.record = record
