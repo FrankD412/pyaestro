@@ -23,9 +23,14 @@ class Graph(ABC):
     def __setitem__(self, key: Hashable, value: object) -> None:
         self._vertices[key] = value
 
+    @abstractmethod
+    def __delitem__(self, key: Hashable) -> None:
+        ...
+
     def __repr__(self) -> str:
         return "{}()".format(type(self).__name__)
 
+    @abstractmethod
     def edges(self) -> Iterable[Tuple[Hashable]]:
         """Iterate the edges of a graph.
 
