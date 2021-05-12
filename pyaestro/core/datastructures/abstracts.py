@@ -23,12 +23,59 @@ class Graph(ABC):
     def __setitem__(self, key: Hashable, value: object) -> None:
         self._vertices[key] = value
 
-    @abstractmethod
     def __delitem__(self, key: Hashable) -> None:
-        ...
+        if key not in self._vertices:
+            raise KeyError(f"Key '{key}' is not in graph.")
+
+        del self._vertices[key]
+        self.delete_edges(key)
 
     def __repr__(self) -> str:
         return "{}()".format(type(self).__name__)
+
+    def search(
+        self, 
+        src: Hashable, search_type: GraphSearchType
+    ) -> Iterable[str]:
+        """Perform a search on the graph from a specified source node.
+
+        Args:
+            src (Hashable): Source key to begin search at. 
+            search_type (SearchType): The type of search to be performed.
+
+        Returns:
+            Iterable[str]: [description]
+        """
+        visited = set()
+
+        if search_type == GraphSearchType.BREADTH:
+            to_visit = []
+            pop = to_visit.pop
+        elif search_type == GraphSearchType.DEPTH:
+            to_visit = deque()
+            pop = to_visit.popleft
+        else:
+            raise ValueError(f"SearchType '{search_type}' not valid.")
+        
+        to_visit.append(src)
+        visited.add(src)
+        while to_visit:
+            root = pop()
+            for node in self.get_neighbors(root):
+                if node in visited:
+                    continue
+
+                to_visit.append(node)
+                yield root
+
+    @abstractmethod
+    def delete_edges(self, key: Hashable) -> None:
+        """Delete all edges associated to a key from the Graph.
+
+        Args:
+            key (Hashable): Key to a node whose edges are to be removed. 
+        """
+        ...
 
     @abstractmethod
     def edges(self) -> Iterable[Tuple[Hashable]]:
@@ -67,43 +114,16 @@ class Graph(ABC):
         """
         ...
 
-    def search(
-        self, 
-        src: Hashable, search_type: GraphSearchType
-    ) -> Iterable[str]:
-        """Perform a search on the graph from a specified source node.
+    @abstractmethod
+    def get_neighbors(self, key: Hashable) -> Iterable[Hashable]:
+        """Get the connected neighbors of the specified node.
 
         Args:
-            src (Hashable): Source key to begin search at. 
-            search_type (SearchType): The type of search to be performed.
-
-        Returns:
-            Iterable[str]: [description]
-        """
-        visited = set()
-
-        if search_type == GraphSearchType.BREADTH:
-            to_visit = []
-            pop = to_visit.pop
-        elif search_type == GraphSearchType.DEPTH:
-            to_visit = deque()
-            pop = to_visit.popleft
-        else:
-            raise ValueError(f"SearchType '{search_type}' not valid.")
+            a (Hashable): Key whose neighbor's should be returned.
         
-        to_visit.append(src)
-        visited.add(src)
-        while to_visit:
-            root = pop()
-            for node in self.get_neighbors(root):
-                if node in visited:
-                    continue
-
-                to_visit.append(node)
-                yield root
-
-    @abstractmethod
-    def get_neighbors(self, node: Hashable) -> Iterable[Hashable]:
+        Raises:
+            KeyError: Raised when 'key' does not exist in the graph.
+        """
         ...
 
     @abstractmethod
@@ -117,11 +137,6 @@ class AdjacencyGraph(Graph):
         super().__init__()
 
     def edges(self) -> Iterable[Tuple[Hashable]]:
-        """Iterate the edges of a graph.
-
-        Returns:
-            Iterable[Tuple[Hashable]]: An iterable of tuples containing edges.
-        """
         for src, adj_list in self._adj_table.items():
             for dest in adj_list: 
                 yield (src, dest)
