@@ -23,9 +23,6 @@ class ConcreteAbstractGraph(Graph):
     def get_neighbors(self, node: Hashable) -> Iterable[Hashable]:
         raise StopIteration
 
-    def __iter__(self) -> Iterable[str]:
-        pass
-
 
 @pytest.fixture(scope="function")
 def concrete_graph():
