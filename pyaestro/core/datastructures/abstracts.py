@@ -33,6 +33,10 @@ class Graph(ABC):
     def __repr__(self) -> str:
         return "{}()".format(type(self).__name__)
 
+    def __iter__(self) -> Iterable[str]:
+        for vertex in self._vertices.keys():
+            yield vertex
+
     def search(
         self, 
         src: Hashable, search_type: GraphSearchType
@@ -124,10 +128,6 @@ class Graph(ABC):
         Raises:
             KeyError: Raised when 'key' does not exist in the graph.
         """
-        ...
-
-    @abstractmethod
-    def __iter__(self) -> Iterable[str]:
         ...
 
 
