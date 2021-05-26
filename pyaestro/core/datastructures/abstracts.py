@@ -1,7 +1,7 @@
 """A module of different graph types and other properties."""
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from collections import defaultdict, deque
+from collections import deque
 from typing import Hashable, Iterable, Tuple
 
 from .constants import GraphSearchType
@@ -130,17 +130,3 @@ class Graph(ABC):
         """
         ...
 
-
-class AdjacencyGraph(Graph):
-    def __init__(self):
-        self._adj_table = defaultdict(set)
-        super().__init__()
-
-    def edges(self) -> Iterable[Tuple[Hashable]]:
-        for src, adj_list in self._adj_table.items():
-            for dest in adj_list: 
-                yield (src, dest)
-
-    def get_neighbors(self, node: Hashable) -> Iterable[Hashable]:
-        for dest in self._adj_table[node]:
-            yield dest
