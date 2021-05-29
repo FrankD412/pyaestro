@@ -2,7 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections import deque
-from typing import Hashable, Iterable, Tuple
+from typing import Dictionary, Hashable, Iterable, Tuple, Type
 
 from .constants import GraphSearchType
 
@@ -36,6 +36,33 @@ class Graph(ABC):
     def __iter__(self) -> Iterable[str]:
         for vertex in self._vertices.keys():
             yield vertex
+
+    @classmethod
+    def from_dict(
+        cls,
+        dictionary: Dictionary[Hashable, Dictionary[Hashable, object]]
+    ) -> Type[Graph]:
+        """Construct a Graph based on a specification of edges and vertices.
+
+        Args:
+            dictionary (Dictionary[Hashable, Dictionary[Hashable, object]]):
+            A dictionary containing two keys:
+                - edges: A dictionary of keys mapping to sets of neighbors.
+                - vertices: A dictionary mapping keys to their values (objects).
+
+        Returns:
+            Type[Graph]: An instance of the type Graph.
+        """
+
+        graph = cls()
+
+        graph._vertices = dictionary["vertices"]
+
+        for node, neighbors in dictionary["edges"].items():
+            for neighbor in neighbors.items():
+                graph.add_edge(node, neighbor)
+                
+        return graph
 
     def search(
         self, 

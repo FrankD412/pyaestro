@@ -1,0 +1,19 @@
+{
+    "type": "object",
+    "required": ["edges", "vertices"],
+    "properties": {
+        "edges": {
+            "description": "Dictionary of source and neighbors",
+            "type": "object"
+        },
+        "vertices": {
+            "description": "A dictionary of vertice keys to objects.",
+            "propertyNames": {
+                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+            }
+        }
+    },
+    "dependencies": {
+        "edges": ["vertices"]
+    }
+}
