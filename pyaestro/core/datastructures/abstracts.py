@@ -1,13 +1,18 @@
 """A module of different graph types and other properties."""
 from __future__ import annotations
 from abc import ABC, abstractmethod
-from collections import deque
-from typing import Dictionary, Hashable, Iterable, Tuple, Type
+import json
+import jsonschema
+from os.path import abspath, dirname, join
+from typing import Dict, Hashable, Iterable, Tuple, Type
 
-from .constants import GraphSearchType
-
+SCHEMA_DIR = join(dirname(abspath(__file__)), "_schemas")
 
 class Graph(ABC):
+
+    with open(join(SCHEMA_DIR, "graph.json")) as schema:
+        _dict_schema = json.load(schema)
+
     def __init__(self):
         self._vertices = {}
 
@@ -40,12 +45,12 @@ class Graph(ABC):
     @classmethod
     def from_dict(
         cls,
-        dictionary: Dictionary[Hashable, Dictionary[Hashable, object]]
+        specification: Dict[Hashable, Dict[Hashable, object]]
     ) -> Type[Graph]:
         """Construct a Graph based on a specification of edges and vertices.
 
         Args:
-            dictionary (Dictionary[Hashable, Dictionary[Hashable, object]]):
+            specification (Dict[Hashable, Dictionary[Hashable, object]]):
             A dictionary containing two keys:
                 - edges: A dictionary of keys mapping to sets of neighbors.
                 - vertices: A dictionary mapping keys to their values (objects).
@@ -55,49 +60,15 @@ class Graph(ABC):
         """
 
         graph = cls()
+        jsonschema.validate(specification, schema=cls._dict_schema)
 
-        graph._vertices = dictionary["vertices"]
+        graph._vertices = specification["vertices"]
 
-        for node, neighbors in dictionary["edges"].items():
-            for neighbor in neighbors.items():
+        for node, neighbors in specification["edges"].items():
+            for neighbor in neighbors:
                 graph.add_edge(node, neighbor)
                 
         return graph
-
-    def search(
-        self, 
-        src: Hashable, search_type: GraphSearchType
-    ) -> Iterable[str]:
-        """Perform a search on the graph from a specified source node.
-
-        Args:
-            src (Hashable): Source key to begin search at. 
-            search_type (SearchType): The type of search to be performed.
-
-        Returns:
-            Iterable[str]: [description]
-        """
-        visited = set()
-
-        if search_type == GraphSearchType.BREADTH:
-            to_visit = []
-            pop = to_visit.pop
-        elif search_type == GraphSearchType.DEPTH:
-            to_visit = deque()
-            pop = to_visit.popleft
-        else:
-            raise ValueError(f"SearchType '{search_type}' not valid.")
-        
-        to_visit.append(src)
-        visited.add(src)
-        while to_visit:
-            root = pop()
-            for node in self.get_neighbors(root):
-                if node in visited:
-                    continue
-
-                to_visit.append(node)
-                yield root
 
     @abstractmethod
     def delete_edges(self, key: Hashable) -> None:

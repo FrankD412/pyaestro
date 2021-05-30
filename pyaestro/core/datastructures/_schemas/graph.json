@@ -11,10 +11,7 @@
         },
         "vertices": {
             "description": "A dictionary of vertice keys to objects.",
-            "type": "object",
-            "additionalProperties": {
-                "type": "object"
-            }
+            "type": "object"
         }
     },
     "dependencies": {

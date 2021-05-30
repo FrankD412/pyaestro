@@ -1,4 +1,5 @@
 from collections import defaultdict
+import jsonschema
 from typing import Hashable, Iterable, Tuple
 
 from ..abstracts import Graph
