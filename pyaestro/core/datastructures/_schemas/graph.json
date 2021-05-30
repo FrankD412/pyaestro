@@ -1,19 +1,24 @@
 {
-    "type": "object",
+    "description": "Dictionary describing a graph",
     "required": ["edges", "vertices"],
     "properties": {
         "edges": {
             "description": "Dictionary of source and neighbors",
-            "type": "object"
+            "type": "object",
+            "additionalProperties": {
+                "type": "array"
+            }
         },
         "vertices": {
             "description": "A dictionary of vertice keys to objects.",
-            "propertyNames": {
-                "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+            "type": "object",
+            "additionalProperties": {
+                "type": "object"
             }
         }
     },
     "dependencies": {
-        "edges": ["vertices"]
+        "edges": ["vertices"],
+        "vertices": ["edges"]
     }
 }
