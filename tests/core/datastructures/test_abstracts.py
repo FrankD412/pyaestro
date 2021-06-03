@@ -1,7 +1,7 @@
 import pytest
 from typing import Hashable, Iterable, Tuple
 
-from pyaestro.core.datastructures.abstracts import Graph, AdjacencyGraph
+from pyaestro.core.datastructures.abstracts import Graph
 
 
 class ConcreteAbstractGraph(Graph):
@@ -24,29 +24,38 @@ class ConcreteAbstractGraph(Graph):
         raise StopIteration
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def concrete_graph():
     return ConcreteAbstractGraph()
 
 
-class TestGraph:
-    def test_contains(concrete_graph):
+class TestAbstractGraph:
+    def test_abstract_instance(self):
+        """Tests that the base Graph class cannot be instantiated (abstract).
+        """
+        with pytest.raises(TypeError) as excinfo:
+            Graph()
+            
+        assert "Can't instantiate abstract class" in str(excinfo)
+    
+    def test_len(self, concrete_graph):
         pass
     
-    def test_getitem(concrete_graph):
+    @pytest.mark.parametrize("node", ["A", "B", "C", "D"])
+    def test_setitem(self, concrete_graph, node):
+        concrete_graph[node] = None
+        expected = [node]
+        assert len(concrete_graph._vertices) == len(expected)
+    
+    def test_contains(self, concrete_graph):
         pass
     
-    def test_setitem(concrete_graph):
+    def test_getitem(self, concrete_graph):
         pass
     
-    def test_delitem(concrete_graph):
+    def test_delitem(self, concrete_graph):
         pass
     
-    def test_repr(concrete_graph):
+    def test_repr(self, concrete_graph):
         pass
     
-    def test_dfs(concrete_graph):
-        pass
-    
-    def test_bfs(concrete_graph):
-        pass
