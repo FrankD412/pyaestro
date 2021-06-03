@@ -1,4 +1,5 @@
 import pytest
+from jsonschema import ValidationError
 from typing import Hashable, Iterable, Tuple
 
 from pyaestro.core.datastructures.abstracts import Graph
@@ -38,14 +39,17 @@ class TestAbstractGraph:
             
         assert "Can't instantiate abstract class" in str(excinfo)
     
+    def test_spec_validation(self, malformed_spec):
+        with pytest.raises(ValidationError) as excinfo:
+            ConcreteAbstractGraph.from_specification(malformed_spec)
+            
+        assert "required property" in str(excinfo)
+    
     def test_len(self, concrete_graph):
         pass
     
-    @pytest.mark.parametrize("node", ["A", "B", "C", "D"])
-    def test_setitem(self, concrete_graph, node):
-        concrete_graph[node] = None
-        expected = [node]
-        assert len(concrete_graph._vertices) == len(expected)
+    def test_setitem(self, concrete_graph):
+        pass
     
     def test_contains(self, concrete_graph):
         pass

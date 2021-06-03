@@ -42,6 +42,14 @@ def diamond_graph():
             "E": None,
         },
     }
+    
+
+@pytest.fixture(scope="module", params=["edges", "vertices"])
+def malformed_spec(request):
+    return {
+        request: {},
+        "malformed": {}
+    }
 
 
 @pytest.fixture(params=[2, 4, 8, 16])
