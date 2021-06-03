@@ -6,9 +6,11 @@ import jsonschema
 from os.path import abspath, dirname, join
 from typing import Dict, Hashable, Iterable, Tuple, Type
 
+from pyaestro.bases import Specifiable
+
 SCHEMA_DIR = join(dirname(abspath(__file__)), "_schemas")
 
-class Graph(ABC):
+class Graph(Specifiable, ABC):
 
     with open(join(SCHEMA_DIR, "graph.json")) as schema:
         _dict_schema = json.load(schema)
@@ -42,8 +44,11 @@ class Graph(ABC):
         for vertex in self._vertices.keys():
             yield vertex
 
+    def __len__(self) -> int:
+        return len(self._vertices)
+
     @classmethod
-    def from_dict(
+    def from_specification(
         cls,
         specification: Dict[Hashable, Dict[Hashable, object]]
     ) -> Type[Graph]:
@@ -52,11 +57,15 @@ class Graph(ABC):
         Args:
             specification (Dict[Hashable, Dictionary[Hashable, object]]):
             A dictionary containing two keys:
-                - edges: A dictionary of keys mapping to sets of neighbors.
+                - edges: A dictionary of lists mapping nodes to their neighbors.
                 - vertices: A dictionary mapping keys to their values (objects).
 
         Returns:
             Type[Graph]: An instance of the type Graph.
+            
+        Raises:
+            ValidationError: Raised when specification does not match the fixed
+            schema for a Graph.
         """
 
         graph = cls()
