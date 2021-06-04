@@ -13,7 +13,7 @@ def breadth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
 
     Returns:
         Iterable: [description]
-    """    
+    """
     visited: Set[Hashable] = set()
     to_visit: deque[Hashable] = deque()
 
@@ -29,7 +29,7 @@ def breadth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
             visited.add(node)
 
         yield root, parent
-    
+
 
 def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
     """[summary]

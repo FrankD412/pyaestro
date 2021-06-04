@@ -10,7 +10,7 @@ T = TypeVar("T", bound="Specifiable")
 
 class Serializable(ABC):
     """An abstract API denoting a class' ability to be serialized."""
-    
+
     @abstractmethod
     def serialize(self) -> dict:
         """Generate a serialized dictionary of the class instance.
@@ -23,14 +23,14 @@ class Serializable(ABC):
 
 class Specifiable(ABC):
     """An abstract API for classes that can be specified by a dictionary."""
-    
+
     @classmethod
     @abstractmethod
-    def from_specification(cls: Type[T], specification:Dict) -> T:
+    def from_specification(cls: Type[T], specification: Dict) -> T:
         """Creates an instance of a class from a specification dictionary.
 
         Args:
-            specification (Dict): A specification of the instance to be created.
+            specification (Dict): A specification describing the new instance.
 
         Returns:
             Specifiable: An instance of the Specifiable class.

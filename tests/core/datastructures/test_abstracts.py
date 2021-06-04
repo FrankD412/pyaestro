@@ -10,6 +10,7 @@ from pyaestro.core.datastructures.abstracts import Graph
 def concrete_graph():
     return ConcreteAbstractGraph()
 
+
 class ConcreteAbstractGraph(Graph):
     def _delete_edges(self, key: Hashable) -> None:
         pass
@@ -22,12 +23,13 @@ class ConcreteAbstractGraph(Graph):
 
     def remove_edge(self, a: Hashable, b: Hashable) -> None:
         pass
-    
+
     def delete_edges(self, key: Hashable) -> None:
         pass
-    
+
     def get_neighbors(self, node: Hashable) -> Iterable[Hashable]:
         raise StopIteration
+
 
 class TestAbstractGraph:
     def test_abstract_instance(self):
@@ -35,16 +37,15 @@ class TestAbstractGraph:
         """
         with pytest.raises(TypeError) as excinfo:
             Graph()
-            
+
         assert "Can't instantiate abstract class" in str(excinfo)
-    
-    
+
     def test_malformed_spec_validation(self, malformed_specificiation):
         with pytest.raises(ValidationError) as excinfo:
             ConcreteAbstractGraph.from_specification(malformed_specificiation)
-        
+
         assert "required property" in str(excinfo)
-    
+
     def test_valid_spec_validation(self, valid_specificiation):
         try:
             ConcreteAbstractGraph.from_specification(valid_specificiation)
@@ -67,7 +68,7 @@ class TestAbstractGraph:
             graph[node] = None
 
         assert len(sized_node_list) == len(graph)
-    
+
     def test_contains(self, sized_node_list):
         graph = ConcreteAbstractGraph()
         for node in sized_node_list:
@@ -76,7 +77,7 @@ class TestAbstractGraph:
         random.shuffle(sized_node_list)
         for node in sized_node_list:
             assert node in graph
-    
+
     def test_getitem(self, sized_node_list):
         graph = ConcreteAbstractGraph()
         values = {}
@@ -87,10 +88,9 @@ class TestAbstractGraph:
         random.shuffle(sized_node_list)
         for node in sized_node_list:
             assert graph[node] == values[node]
-    
+
     def test_delitem(self, concrete_graph):
         pass
-    
+
     def test_repr(self, concrete_graph):
         pass
-    

@@ -10,6 +10,7 @@ from pyaestro.bases import Specifiable
 
 SCHEMA_DIR = join(dirname(abspath(__file__)), "_schemas")
 
+
 class Graph(Specifiable, ABC):
 
     with open(join(SCHEMA_DIR, "graph.json")) as schema:
@@ -57,12 +58,12 @@ class Graph(Specifiable, ABC):
         Args:
             specification (Dict[Hashable, Dictionary[Hashable, object]]):
             A dictionary containing two keys:
-                - edges: A dictionary of lists mapping nodes to their neighbors.
-                - vertices: A dictionary mapping keys to their values (objects).
+                - edges: A dictionary of adjacency lists.
+                - vertices: A dictionary mapping keys to their values.
 
         Returns:
             Type[Graph]: An instance of the type Graph.
-            
+
         Raises:
             ValidationError: Raised when specification does not match the fixed
             schema for a Graph.
@@ -76,7 +77,7 @@ class Graph(Specifiable, ABC):
         for node, neighbors in specification["edges"].items():
             for neighbor in neighbors:
                 graph.add_edge(node, neighbor)
-                
+
         return graph
 
     @abstractmethod
@@ -84,7 +85,7 @@ class Graph(Specifiable, ABC):
         """Delete all edges associated to a key from the Graph.
 
         Args:
-            key (Hashable): Key to a node whose edges are to be removed. 
+            key (Hashable): Key to a node whose edges are to be removed.
         """
         ...
 
@@ -104,7 +105,7 @@ class Graph(Specifiable, ABC):
         Args:
             a (Hashable): Key identifying side 'a' of an edge.
             b (Hashable): Key identifying side 'b' of an edge.
-        
+
         Raises:
             KeyError: Raised when either node 'a' or node 'b'
             do not exist in the graph.
@@ -118,7 +119,7 @@ class Graph(Specifiable, ABC):
         Args:
             a (Hashable): Key identifying side 'a' of an edge.
             b (Hashable): Key identifying side 'b' of an edge.
-        
+
         Raises:
             KeyError: Raised when either node 'a' or node 'b'
             do not exist in the graph.
@@ -131,9 +132,8 @@ class Graph(Specifiable, ABC):
 
         Args:
             a (Hashable): Key whose neighbor's should be returned.
-        
+
         Raises:
             KeyError: Raised when 'key' does not exist in the graph.
         """
         ...
-
