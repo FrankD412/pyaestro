@@ -42,14 +42,20 @@ def diamond_graph():
             "E": None,
         },
     }
-    
 
-@pytest.fixture(scope="module", params=["edges", "vertices"])
-def malformed_spec(request):
-    return {
-        request: {},
-        "malformed": {}
-    }
+
+@pytest.fixture(scope="module",
+                params=[{"malformed": {}, "vertices": {}},
+                        {"edges": {}, "malformed": {}},
+                        {"malformed1": {}, "malformed2": {}}])
+def malformed_specificiation(request):
+    return request.param
+
+
+@pytest.fixture(scope="module",
+                params=["linear_graph", "diamond_graph"])
+def valid_specificiation(request):
+    return request.getfixturevalue(request.param)
 
 
 @pytest.fixture(params=[2, 4, 8, 16])

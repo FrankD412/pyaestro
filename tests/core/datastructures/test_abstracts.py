@@ -5,6 +5,10 @@ from typing import Hashable, Iterable, Tuple
 from pyaestro.core.datastructures.abstracts import Graph
 
 
+@pytest.fixture(scope="session")
+def concrete_graph():
+    return ConcreteAbstractGraph()
+
 class ConcreteAbstractGraph(Graph):
     def _delete_edges(self, key: Hashable) -> None:
         pass
@@ -24,12 +28,6 @@ class ConcreteAbstractGraph(Graph):
     def get_neighbors(self, node: Hashable) -> Iterable[Hashable]:
         raise StopIteration
 
-
-@pytest.fixture(scope="session")
-def concrete_graph():
-    return ConcreteAbstractGraph()
-
-
 class TestAbstractGraph:
     def test_abstract_instance(self):
         """Tests that the base Graph class cannot be instantiated (abstract).
@@ -39,12 +37,21 @@ class TestAbstractGraph:
             
         assert "Can't instantiate abstract class" in str(excinfo)
     
-    def test_spec_validation(self, malformed_spec):
+    
+    def test_malformed_spec_validation(self, malformed_specificiation):
         with pytest.raises(ValidationError) as excinfo:
-            ConcreteAbstractGraph.from_specification(malformed_spec)
-            
+            ConcreteAbstractGraph.from_specification(malformed_specificiation)
+        
         assert "required property" in str(excinfo)
     
+    def test_valid_spec_validation(self, valid_specificiation):
+        try:
+            ConcreteAbstractGraph.from_specification(valid_specificiation)
+        except Exception as exception:
+            msg = f"'ConcreteAbstractGraph.from_specification' raised an " \
+                f"exception. Error: {str(exception)}"
+            pytest.fail(msg)
+
     def test_len(self, concrete_graph):
         pass
     
