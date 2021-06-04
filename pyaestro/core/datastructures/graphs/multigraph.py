@@ -1,9 +1,7 @@
 from collections import defaultdict
-from enum import Enum
-from typing import List, Tuple
 
 from ..abstracts import Graph
-from ..constants import EdgeProperty, GraphSearchType
+from ..constants import EdgeProperty
 
 
 class MultiGraph(Graph):
