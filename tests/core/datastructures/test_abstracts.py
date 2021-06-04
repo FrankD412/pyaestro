@@ -1,5 +1,6 @@
 import pytest
 from jsonschema import ValidationError
+import random
 from typing import Hashable, Iterable, Tuple
 
 from pyaestro.core.datastructures.abstracts import Graph
@@ -52,17 +53,40 @@ class TestAbstractGraph:
                 f"exception. Error: {str(exception)}"
             pytest.fail(msg)
 
-    def test_len(self, concrete_graph):
-        pass
+    def test_setitem(self, sized_node_list):
+        graph = ConcreteAbstractGraph()
+        for node in sized_node_list:
+            graph[node] = None
+
+        assert len(sized_node_list) == len(graph._vertices.keys())
+        assert sorted(sized_node_list) == sorted(graph._vertices.keys())
+
+    def test_len(self, sized_node_list):
+        graph = ConcreteAbstractGraph()
+        for node in sized_node_list:
+            graph[node] = None
+
+        assert len(sized_node_list) == len(graph)
     
-    def test_setitem(self, concrete_graph):
-        pass
+    def test_contains(self, sized_node_list):
+        graph = ConcreteAbstractGraph()
+        for node in sized_node_list:
+            graph[node] = None
+
+        random.shuffle(sized_node_list)
+        for node in sized_node_list:
+            assert node in graph
     
-    def test_contains(self, concrete_graph):
-        pass
-    
-    def test_getitem(self, concrete_graph):
-        pass
+    def test_getitem(self, sized_node_list):
+        graph = ConcreteAbstractGraph()
+        values = {}
+        for node in sized_node_list:
+            values[node] = random.randint(0, 100000)
+            graph[node] = values[node]
+
+        random.shuffle(sized_node_list)
+        for node in sized_node_list:
+            assert graph[node] == values[node]
     
     def test_delitem(self, concrete_graph):
         pass

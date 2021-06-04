@@ -58,13 +58,14 @@ def valid_specificiation(request):
     return request.getfixturevalue(request.param)
 
 
-@pytest.fixture(params=[2, 4, 8, 16])
-def nodes(node_count):
+@pytest.fixture(scope="module",
+                params=[1, 2, 4, 7, 8, 16, 32])
+def sized_node_list(request):
     node_list = []
     for length in itertools.count(1):
         for i in itertools.product(ascii_uppercase, repeat=length):
             node_list.append("".join(i))
         
-        if len(node_list) >= node_count:
-            return node_list[:node_count]
+        if len(node_list) >= request.param:
+            return node_list[:request.param]
 
