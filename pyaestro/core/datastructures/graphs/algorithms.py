@@ -13,20 +13,22 @@ def breadth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
 
     Returns:
         Iterable: [description]
-    """
-    visited = set()
-    to_visit = deque()
+    """    
+    visited: Set[Hashable] = set()
+    to_visit: deque[Hashable] = deque()
 
-    to_visit.push(source)
+    to_visit.push((source, None))
     visited.add(source)
     while to_visit:
-        root = to_visit.pop()
+        root, parent = to_visit.popleft()
         for node in graph.get_neighbors(root):
             if node in visited:
                 continue
 
-            to_visit.push(node)
-            yield root
+            to_visit.push((node, root))
+            visited.add(node)
+
+        yield root, parent
     
 
 def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
@@ -42,13 +44,15 @@ def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
     visited: Set[Hashable] = set()
     to_visit: List[Hashable] = []
 
-    to_visit.append(source)
+    to_visit.append((source, None))
     visited.add(source)
     while to_visit:
-        root: Hashable = to_visit.pop()
+        root, parent = to_visit.pop()
         for node in graph.get_neighbors(root):
             if node in visited:
                 continue
 
-            to_visit.push(node)
-            yield root
+            to_visit.append((node, root))
+            visited.add(node)
+
+        yield root, parent
