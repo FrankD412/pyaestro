@@ -89,8 +89,58 @@ class TestAbstractGraph:
         for node in sized_node_list:
             assert graph[node] == values[node]
 
-    def test_delitem(self, concrete_graph):
-        pass
+    def test_getitem_missing(self):
+        graph = ConcreteAbstractGraph()
+        assert len(graph) == 0
+        assert len(graph._vertices) == 0
 
-    def test_repr(self, concrete_graph):
-        pass
+        with pytest.raises(KeyError) as excinfo:
+            graph['missing']
+
+        assert "not in graph" in str(excinfo)
+
+    def test_delitem(self, sized_node_list):
+        graph = ConcreteAbstractGraph()
+        values = {}
+        for node in sized_node_list:
+            values[node] = random.randint(0, 100000)
+            graph[node] = values[node]
+
+        random.shuffle(sized_node_list)
+        while sized_node_list:
+            value = sized_node_list.pop()
+            del graph[value]
+
+            assert value not in graph
+            assert value not in graph._vertices
+
+    def test_del_missing(self):
+        graph = ConcreteAbstractGraph()
+        assert len(graph) == 0
+        assert len(graph._vertices) == 0
+
+        with pytest.raises(KeyError) as excinfo:
+            del graph['missing']
+
+        assert "not in graph" in str(excinfo)
+
+    def test_repr(self):
+        graph = ConcreteAbstractGraph()
+        assert str(graph) == "ConcreteAbstractGraph()"
+
+    def test_iter(self, sized_node_list):
+        graph = ConcreteAbstractGraph()
+        values = []
+        for key in graph:
+            values.append(key)
+
+        assert len(values) == 0
+
+        for key in sized_node_list:
+            graph[key] = None
+
+        assert len(graph) == len(sized_node_list)
+        for key in graph:
+            values.append(key)
+        assert sorted(values) == sorted(sized_node_list)
+
