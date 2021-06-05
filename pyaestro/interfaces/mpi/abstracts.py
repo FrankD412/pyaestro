@@ -8,4 +8,4 @@ class MpiAdapter(ABC):
     @classmethod
     @abstractmethod
     def substitute_cmd(self, cmd, resources):
-        pass
+        raise NotImplementedError

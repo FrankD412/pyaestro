@@ -18,7 +18,7 @@ class Serializable(ABC):
         Returns:
             dict: A specification dictionary representing the object instance.
         """
-        ...
+        raise NotImplementedError
 
 
 class Specifiable(ABC):
@@ -35,4 +35,4 @@ class Specifiable(ABC):
         Returns:
             Specifiable: An instance of the Specifiable class.
         """
-        ...
+        raise NotImplementedError

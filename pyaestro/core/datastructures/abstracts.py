@@ -87,7 +87,7 @@ class Graph(Specifiable, ABC):
         Args:
             key (Hashable): Key to a node whose edges are to be removed.
         """
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def edges(self) -> Iterable[Tuple[Hashable]]:
@@ -96,7 +96,7 @@ class Graph(Specifiable, ABC):
         Returns:
             Iterable[Tuple[Hashable]]: An iterable of tuples containing edges.
         """
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def add_edge(self, a: Hashable, b: Hashable) -> None:
@@ -110,7 +110,7 @@ class Graph(Specifiable, ABC):
             KeyError: Raised when either node 'a' or node 'b'
             do not exist in the graph.
         """
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def remove_edge(self, a: Hashable, b: Hashable) -> None:
@@ -124,7 +124,7 @@ class Graph(Specifiable, ABC):
             KeyError: Raised when either node 'a' or node 'b'
             do not exist in the graph.
         """
-        ...
+        raise NotImplementedError
 
     @abstractmethod
     def get_neighbors(self, key: Hashable) -> Iterable[Hashable]:
@@ -136,4 +136,4 @@ class Graph(Specifiable, ABC):
         Raises:
             KeyError: Raised when 'key' does not exist in the graph.
         """
-        ...
+        raise NotImplementedError
