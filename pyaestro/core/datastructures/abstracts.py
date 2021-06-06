@@ -23,20 +23,20 @@ class Graph(Specifiable, ABC):
         return self._vertices.__contains__(key)
 
     def __getitem__(self, key):
-        if key not in self._vertices:
-            raise KeyError(f"Key '{key}' is not in graph.")
-
-        return self._vertices.get(key)
+        try:
+            return self._vertices[key]
+        except KeyError as key_error:
+            raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def __setitem__(self, key: Hashable, value: object) -> None:
         self._vertices[key] = value
 
     def __delitem__(self, key: Hashable) -> None:
-        if key not in self._vertices:
-            raise KeyError(f"Key '{key}' is not in graph.")
-
-        del self._vertices[key]
-        self.delete_edges(key)
+        try:
+            self.delete_edges(key)
+            del self._vertices[key]
+        except KeyError as key_error:
+            raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def __repr__(self) -> str:
         return "{}()".format(type(self).__name__)
@@ -72,7 +72,8 @@ class Graph(Specifiable, ABC):
         graph = cls()
         jsonschema.validate(specification, schema=cls._dict_schema)
 
-        graph._vertices = specification["vertices"]
+        for vertex, value in specification["vertices"].items():
+            graph[vertex] = value
 
         for node, neighbors in specification["edges"].items():
             for neighbor in neighbors:
