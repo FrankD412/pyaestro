@@ -40,15 +40,15 @@ class TestAbstractGraph:
 
         assert "Can't instantiate abstract class" in str(excinfo)
 
-    def test_malformed_spec_validation(self, malformed_specificiation):
+    def test_malformed_spec_validation(self, malformed_specification):
         with pytest.raises(ValidationError) as excinfo:
-            ConcreteAbstractGraph.from_specification(malformed_specificiation)
+            ConcreteAbstractGraph.from_specification(malformed_specification)
 
         assert "required property" in str(excinfo)
 
-    def test_valid_spec_validation(self, valid_specificiation):
+    def test_valid_spec_validation(self, valid_specification):
         try:
-            ConcreteAbstractGraph.from_specification(valid_specificiation)
+            ConcreteAbstractGraph.from_specification(valid_specification)
         except Exception as exception:
             msg = f"'ConcreteAbstractGraph.from_specification' raised an " \
                 f"exception. Error: {str(exception)}"
@@ -97,7 +97,7 @@ class TestAbstractGraph:
         with pytest.raises(KeyError) as excinfo:
             graph['missing']
 
-        assert "not in graph" in str(excinfo)
+        assert "not found in graph" in str(excinfo)
 
     def test_delitem(self, sized_node_list):
         graph = ConcreteAbstractGraph()
@@ -122,7 +122,7 @@ class TestAbstractGraph:
         with pytest.raises(KeyError) as excinfo:
             del graph['missing']
 
-        assert "not in graph" in str(excinfo)
+        assert "not found in graph" in str(excinfo)
 
     def test_repr(self):
         graph = ConcreteAbstractGraph()
