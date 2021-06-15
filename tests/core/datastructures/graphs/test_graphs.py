@@ -72,3 +72,24 @@ class TestAdjGraph:
             graph.add_edge("invalid", "invalid2")
 
         assert "'invalid' not found in graph" in str(excinfo)
+
+    def test_edges(self, sized_node_list):
+        graph = AdjacencyGraph()
+        edges = {}
+        for node in sized_node_list:
+            graph[node] = None
+
+        for node in sized_node_list:
+            neighbors = random.choices(
+                sized_node_list, k=random.randint(1, len(sized_node_list))
+            )
+            edges[node] = set(neighbors)
+            for neighbor in neighbors:
+                graph.add_edge(node, neighbor)
+
+        print(sized_node_list)
+        print(edges)
+
+        for node in edges.keys():
+            diff = set(graph.get_neighbors(node)) - edges[node]
+            assert len(diff) == 0

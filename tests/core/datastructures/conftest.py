@@ -57,7 +57,7 @@ def valid_specification(request):
     return request.getfixturevalue(request.param)
 
 
-@pytest.fixture(scope="module",
+@pytest.fixture(scope="function",
                 params=[1, 2, 4, 7, 8, 16, 32])
 def sized_node_list(request):
     node_list = []
