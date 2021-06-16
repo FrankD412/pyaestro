@@ -10,7 +10,8 @@ class AdjacencyGraph(Graph):
 
     def __setitem__(self, key: Hashable, value: object) -> None:
         super().__setitem__(key, value)
-        self._adj_table[key] = set()
+        if key not in self._adj_table:
+            self._adj_table[key] = set()
 
     def __delitem__(self, key: Hashable) -> None:
         try:
