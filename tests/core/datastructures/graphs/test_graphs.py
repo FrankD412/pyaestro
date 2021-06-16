@@ -92,4 +92,9 @@ class TestAdjGraph:
 
         for node in edges.keys():
             diff = set(graph.get_neighbors(node)) - edges[node]
+            found = [neighbor for neighbor in diff 
+                    if node in graph._adj_table[neighbor]]
+            found = set(found)
+            assert len(found) == len(diff)
+            diff = found - diff
             assert len(diff) == 0
