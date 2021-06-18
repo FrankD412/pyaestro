@@ -6,11 +6,15 @@ description = "A package of utilities structures for building workflows and work
 authors = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
 maintainers = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
 license = "MIT"
+include = ["pyaestro/core/datastructures/_schemas/graph.json"]
 
 [tool.poetry.dependencies]
-python = ">3.4"
-psutil = "*"
+python = ">=3.6"
 coloredlogs = "*"
+psutil = "^5.8.0"
+jsonschema = "*"
+
+
 
 [tool.poetry.dev-dependencies]
 fabric = "*"
@@ -26,6 +30,7 @@ pytest-cov = "*"
 pre-commit = "*"
 tox-travis = "*"
 tox-pyenv = "*"
+autopep8 = "^1.5.7"
 
 [build-system]
 requires = ["poetry>=0.12"]
