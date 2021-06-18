@@ -1,3 +1,4 @@
+import itertools
 import pytest
 from jsonschema import ValidationError
 import random
@@ -73,22 +74,9 @@ class TestAdjGraph:
 
         assert "'invalid' not found in graph" in str(excinfo)
 
-    def test_edges(self, sized_node_list):
-        graph = AdjacencyGraph()
-        edges = {}
-        for node in sized_node_list:
-            graph[node] = None
-
-        for node in sized_node_list:
-            neighbors = random.choices(
-                sized_node_list, k=random.randint(1, len(sized_node_list))
-            )
-            edges[node] = set(neighbors)
-            for neighbor in neighbors:
-                graph.add_edge(node, neighbor)
-
-        print(sized_node_list)
-        print(edges)
+    def test_edges(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
 
         for node in edges.keys():
             diff = set(graph.get_neighbors(node)) - edges[node]
@@ -98,3 +86,17 @@ class TestAdjGraph:
             assert len(found) == len(diff)
             diff = found - diff
             assert len(diff) == 0
+
+    def test_get_edges(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = set()
+        for node, edge_set in sized_adj_graph[1].items():
+            for e in edge_set:
+                edges.add((node, e))
+                edges.add((e, node))
+
+        diff = set(graph.edges()) - set(edges)
+        assert len(diff) == 0
+    
+    def test__setitem__(self, sized_adj_graph):
+        pass

@@ -1,15 +1,32 @@
+import collections
+import itertools
 import pytest
 import random
+from string import ascii_uppercase
 
 from pyaestro.core.datastructures.graphs import AdjacencyGraph
 
 
+GraphTuple = collections.namedtuple('graph', 'edges')
+
+
+
 @pytest.fixture(scope="function",
-                params=["sized_node_list"])
+                params=[1, 2, 4, 7, 8, 16, 32])
 def sized_adj_graph(request):
     graph = AdjacencyGraph()
     edges = {}
-    nodes = request.param
+    size = request.param
+    nodes = []
+
+    for length in itertools.count(1):
+        for i in itertools.product(ascii_uppercase, repeat=length):
+            nodes.append("".join(i))
+
+        if len(nodes) >= size:
+            nodes = nodes[:size]
+            break
+
     for node in nodes:
         graph[node] = None
 
@@ -21,4 +38,4 @@ def sized_adj_graph(request):
         for neighbor in neighbors:
             graph.add_edge(node, neighbor)
             
-    return graph
+    return graph, edges
