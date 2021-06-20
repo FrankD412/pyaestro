@@ -64,8 +64,9 @@ class AdjacencyGraph(Graph):
             do not exist in the graph.
         """
         try:
-            # Add each edge
+            # Bidirectional graph will cause a key error if not checked.
             self._adj_table[a].remove(b)
-            self._adj_table[b].remove(a)
+            if a != b:
+                self._adj_table[b].remove(a)
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
