@@ -119,6 +119,8 @@ class TestAdjGraph:
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
 
+        print(edges)
+
         for node in edges.keys():
             neighbors = edges[node]
             pruned = copy.deepcopy(neighbors)
@@ -126,10 +128,12 @@ class TestAdjGraph:
             for neighbor in neighbors:
                 graph.remove_edge(node, neighbor)
                 pruned.remove(neighbor)
-                edges[neighbor].remove(node)
+                if node != neighbor:
+                    edges[neighbor].remove(node)
 
                 assert pruned == set(graph.get_neighbors(node))
                 assert edges[neighbor] == set(graph.get_neighbors(neighbor))
+
             edges[node] = pruned
 
         assert len(set(graph.edges())) == 0
