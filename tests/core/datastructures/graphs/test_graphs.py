@@ -74,17 +74,21 @@ class TestAdjGraph:
 
         assert "'invalid' not found in graph" in str(excinfo)
 
+    def test_get_neighbors(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
+        
+        for node in graph:
+            neighbors = set(graph.get_neighbors(node))
+            diff = neighbors - edges[node]
+            assert len(diff) == 0
+
     def test_edges(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
 
         for node in edges.keys():
             diff = set(graph.get_neighbors(node)) - edges[node]
-            found = [neighbor for neighbor in diff 
-                    if node in graph._adj_table[neighbor]]
-            found = set(found)
-            assert len(found) == len(diff)
-            diff = found - diff
             assert len(diff) == 0
 
     def test_get_edges(self, sized_adj_graph):
@@ -99,4 +103,16 @@ class TestAdjGraph:
         assert len(diff) == 0
     
     def test__setitem__(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
+
+        for node in graph:
+            assert graph[node] == None
+            edges_pre = set(graph.get_neighbors(node))
+            graph[node] = 1
+            edges_post = set(graph.get_neighbors(node))
+            assert len(edges_post - edges_pre) == 0
+            assert len(edges_post - edges[node]) == 0
+
+    def test_delete_edge(self, sized_adj_graph):
         pass

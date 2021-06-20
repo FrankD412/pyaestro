@@ -29,13 +29,16 @@ def sized_adj_graph(request):
 
     for node in nodes:
         graph[node] = None
+        edges[node] = set()
 
     for node in nodes:
         neighbors = random.choices(
             nodes, k=random.randint(1, len(nodes))
         )
-        edges[node] = set(neighbors)
+        
         for neighbor in neighbors:
             graph.add_edge(node, neighbor)
+            edges[node].add(neighbor)
+            edges[neighbor].add(node)
             
     return graph, edges
