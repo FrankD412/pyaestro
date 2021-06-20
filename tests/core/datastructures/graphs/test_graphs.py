@@ -1,3 +1,4 @@
+import copy
 import itertools
 import pytest
 from jsonschema import ValidationError
@@ -115,4 +116,20 @@ class TestAdjGraph:
             assert len(edges_post - edges[node]) == 0
 
     def test_delete_edge(self, sized_adj_graph):
-        pass
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
+
+        for node in edges.keys():
+            neighbors = edges[node]
+            pruned = copy.deepcopy(neighbors)
+            assert neighbors == set(graph.get_neighbors(node))
+            for neighbor in neighbors:
+                graph.remove_edge(node, neighbor)
+                pruned.remove(neighbor)
+                edges[neighbor].remove(node)
+
+                assert pruned == set(graph.get_neighbors(node))
+                assert edges[neighbor] == set(graph.get_neighbors(neighbor))
+            edges[node] = pruned
+
+        assert len(set(graph.edges())) == 0
