@@ -1,8 +1,7 @@
-import copy
-import itertools
-import pytest
 from jsonschema import ValidationError
-import random
+import pytest
+from math import ceil
+from random import randint, shuffle
 
 from pyaestro.core.datastructures.graphs import AdjacencyGraph
 import utils
@@ -31,10 +30,10 @@ class TestAdjGraph:
         graph = AdjacencyGraph()
         values = {}
         for node in sized_node_list:
-            values[node] = random.randint(0, 100000)
+            values[node] = randint(0, 100000)
             graph[node] = values[node]
 
-        random.shuffle(sized_node_list)
+        shuffle(sized_node_list)
         while sized_node_list:
             value = sized_node_list.pop()
             del graph[value]
@@ -119,7 +118,8 @@ class TestAdjGraph:
     def test_delete_edge(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
-        missing_nodes = list(utils.generate_unique_lower_names())
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
 
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
@@ -129,15 +129,33 @@ class TestAdjGraph:
 
                 assert neighbor not in graph.get_neighbors(node)
                 assert node not in graph.get_neighbors(neighbor)
+                
+                with pytest.raises(KeyError):
+                    for key in missing_nodes:
+                        graph.remove_edge(node, key)
+                        
+                with pytest.raises(KeyError):
+                    for key in missing_nodes:
+                        graph.remove_edge(key, node)
 
         assert len(set(graph.edges())) == 0
 
     def test_delete_neighbors(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+
+        with pytest.raises(KeyError):
+            for key in missing_nodes:
+                graph.delete_edges(key)
 
         for node in edges.keys():
             graph.delete_edges(node)
             assert len(set(graph.get_neighbors(node))) == 0
-            
+        
         assert len(set(graph.edges())) == 0
+
+        with pytest.raises(KeyError):
+            for key in missing_nodes:
+                graph.delete_edges(key)
