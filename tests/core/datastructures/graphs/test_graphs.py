@@ -78,21 +78,19 @@ class TestAdjGraph:
     def test_get_neighbors(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
         
         for node in graph:
             neighbors = set(graph.get_neighbors(node))
             diff = neighbors - edges[node]
             assert len(diff) == 0
 
+        for node in missing_nodes:
+            with pytest.raises(KeyError):
+                graph.get_neighbors(node)
+
     def test_edges(self, sized_adj_graph):
-        graph = sized_adj_graph[0]
-        edges = sized_adj_graph[1]
-
-        for node in edges.keys():
-            diff = set(graph.get_neighbors(node)) - edges[node]
-            assert len(diff) == 0
-
-    def test_get_edges(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = set()
         for node, edge_set in sized_adj_graph[1].items():
