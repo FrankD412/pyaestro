@@ -30,7 +30,8 @@ class AdjacencyGraph(Graph):
             yield dest
 
     def delete_edges(self, key: Hashable) -> None:
-        for neighbor in self._adj_table[key]:
+        neighbors = [neighbor for neighbor in self._adj_table[key]]
+        for neighbor in neighbors:
             self._adj_table[neighbor].remove(key)
         self._adj_table[key].clear()
 
