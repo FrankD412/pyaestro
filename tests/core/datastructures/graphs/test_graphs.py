@@ -129,3 +129,13 @@ class TestAdjGraph:
                 assert node not in graph.get_neighbors(neighbor)
 
         assert len(set(graph.edges())) == 0
+
+    def test_delete_neighbors(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
+
+        for node in edges.keys():
+            graph.delete_edges(node)
+            assert len(set(graph.get_neighbors(node))) == 0
+            
+        assert len(set(graph.edges())) == 0

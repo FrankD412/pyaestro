@@ -62,5 +62,5 @@ def sized_adj_graph(request):
             graph.add_edge(node, neighbor)
             edges[node].add(neighbor)
             edges[neighbor].add(node)
-            
+
     return graph, edges
