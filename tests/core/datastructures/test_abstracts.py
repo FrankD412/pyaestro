@@ -64,6 +64,7 @@ class TestAbstractGraph:
 
     def test_len(self, sized_node_list):
         graph = ConcreteAbstractGraph()
+        print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         for node in sized_node_list:
             graph[node] = None
 
@@ -71,6 +72,7 @@ class TestAbstractGraph:
 
     def test_contains(self, sized_node_list):
         graph = ConcreteAbstractGraph()
+        print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         for node in sized_node_list:
             graph[node] = None
 
@@ -80,6 +82,7 @@ class TestAbstractGraph:
 
     def test_getitem(self, sized_node_list):
         graph = ConcreteAbstractGraph()
+        print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         values = {}
         for node in sized_node_list:
             values[node] = random.randint(0, 100000)

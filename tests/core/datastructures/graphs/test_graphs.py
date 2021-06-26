@@ -5,6 +5,7 @@ from jsonschema import ValidationError
 import random
 
 from pyaestro.core.datastructures.graphs import AdjacencyGraph
+import utils
 
 
 class TestAdjGraph:
@@ -118,6 +119,7 @@ class TestAdjGraph:
     def test_delete_edge(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
+        missing_nodes = list(utils.generate_unique_lower_names())
 
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
