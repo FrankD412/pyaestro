@@ -128,12 +128,10 @@ class TestAdjGraph:
                 assert neighbor not in graph.get_neighbors(node)
                 assert node not in graph.get_neighbors(neighbor)
                 
-                with pytest.raises(KeyError):
-                    for key in missing_nodes:
+                for key in missing_nodes:
+                    with pytest.raises(KeyError):
                         graph.remove_edge(node, key)
-                        
-                with pytest.raises(KeyError):
-                    for key in missing_nodes:
+                    with pytest.raises(KeyError):
                         graph.remove_edge(key, node)
 
         assert len(set(graph.edges())) == 0
@@ -144,8 +142,8 @@ class TestAdjGraph:
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(utils.generate_unique_lower_names(num_missing))
 
-        with pytest.raises(KeyError):
-            for key in missing_nodes:
+        for key in missing_nodes:
+            with pytest.raises(KeyError):
                 graph.delete_edges(key)
 
         for node in edges.keys():
@@ -154,6 +152,6 @@ class TestAdjGraph:
         
         assert len(set(graph.edges())) == 0
 
-        with pytest.raises(KeyError):
-            for key in missing_nodes:
+        for key in missing_nodes:
+            with pytest.raises(KeyError):
                 graph.delete_edges(key)
