@@ -26,11 +26,18 @@ class AdjacencyGraph(Graph):
                 yield src, dest
 
     def get_neighbors(self, node: Hashable) -> Iterable[Hashable]:
-        for dest in self._adj_table[node]:
-            yield dest
+        try:
+            for dest in self._adj_table[node]:
+                yield dest
+        except KeyError as key_error:
+            raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def delete_edges(self, key: Hashable) -> None:
-        neighbors = [neighbor for neighbor in self._adj_table[key]]
+        try:
+            neighbors = [neighbor for neighbor in self._adj_table[key]]
+        except KeyError as key_error:
+            raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
+
         for neighbor in neighbors:
             self._adj_table[neighbor].remove(key)
         self._adj_table[key].clear()
