@@ -34,13 +34,11 @@ class AdjacencyGraph(Graph):
 
     def delete_edges(self, key: Hashable) -> None:
         try:
-            neighbors = [neighbor for neighbor in self._adj_table[key]]
+            for neighbor in self._adj_table[key]:
+                self._adj_table[neighbor].remove(key)
+            self._adj_table[key].clear()
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
-
-        for neighbor in neighbors:
-            self._adj_table[neighbor].remove(key)
-        self._adj_table[key].clear()
 
     def add_edge(self, a: Hashable, b: Hashable) -> None:
         """Add an edge between node 'a' and node 'b' to the graph.

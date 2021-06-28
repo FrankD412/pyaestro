@@ -68,7 +68,6 @@ class Graph(Specifiable, ABC):
             ValidationError: Raised when specification does not match the fixed
             schema for a Graph.
         """
-
         graph = cls()
         jsonschema.validate(specification, schema=cls._dict_schema)
 
