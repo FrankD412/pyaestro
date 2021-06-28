@@ -88,7 +88,8 @@ class TestAdjGraph:
 
         for node in missing_nodes:
             with pytest.raises(KeyError):
-                graph.get_neighbors(node)
+                for neighbor in graph.get_neighbors(node):
+                    continue
 
     def test_edges(self, sized_adj_graph):
         graph = sized_adj_graph[0]
