@@ -5,11 +5,9 @@ import random
 from string import ascii_uppercase
 import sys
 
+from .helpers.utils import generate_unique_upper_names
 from pyaestro.core.datastructures.graphs import AdjacencyGraph
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
-
-import utils
 
 @pytest.fixture(scope="module",
                 params=[{"malformed": {}, "vertices": {}},
@@ -28,7 +26,7 @@ def valid_specification(request):
 @pytest.fixture(scope="function",
                 params=[1, 2, 4, 7, 8, 16, 32])
 def sized_node_list(request):
-    return list(utils.generate_unique_upper_names(request.param))
+    return list(generate_unique_upper_names(request.param))
 
 
 @pytest.fixture(scope="function",
@@ -36,7 +34,7 @@ def sized_node_list(request):
 def sized_adj_graph(request):
     graph = AdjacencyGraph()
     edges = {}
-    nodes = list(utils.generate_unique_upper_names(request.param))
+    nodes = list(generate_unique_upper_names(request.param))
 
     for node in nodes:
         graph[node] = None
