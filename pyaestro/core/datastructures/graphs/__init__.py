@@ -34,12 +34,9 @@ class AdjacencyGraph(Graph):
 
     def delete_edges(self, key: Hashable) -> None:
         try:
-            if key in self._adj_table[key]:
-                self._adj_table[key].remove(key)
-
+            self._adj_table[key].discard(key)
             for neighbor in self._adj_table[key]:
                 self._adj_table[neighbor].remove(key)
-
             self._adj_table[key].clear()
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
@@ -76,7 +73,6 @@ class AdjacencyGraph(Graph):
         try:
             # Bidirectional graph will cause a key error if not checked.
             self._adj_table[a].remove(b)
-            if a != b:
-                self._adj_table[b].remove(a)
+            self._adj_table[b].discard(a)
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
