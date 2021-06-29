@@ -4,7 +4,7 @@ from math import ceil
 from random import randint, shuffle
 
 from pyaestro.core.datastructures.graphs import AdjacencyGraph
-import tests.helpers.utils as utils
+from tests.helpers.utils import generate_unique_lower_names
 
 
 class TestAdjGraph:
@@ -50,8 +50,23 @@ class TestAdjGraph:
 
         assert "not found in graph" in str(excinfo)
 
-    def test_add_egde(self, graph_type, valid_specification):
-        graph = graph_type()
+    def test_add_egde(self, valid_specification):
+        graph = AdjacencyGraph()
+        edges = set()
+        for vertex, value in valid_specification["vertices"].items():
+            graph[vertex] = value
+
+        for vertex, neighbors in valid_specification["edges"].items():
+            for neighbor in neighbors:
+                edges.add((vertex, neighbor))
+                edges.add((neighbor, vertex))
+                graph.add_edge(vertex, neighbor)
+
+        diff = set(graph.edges()) - edges
+        assert len(diff) == 0
+
+    def test_add_egde_invalid(self, valid_specification):
+        graph = AdjacencyGraph()
         for vertex, value in valid_specification["vertices"].items():
             graph[vertex] = value
 
@@ -80,13 +95,17 @@ class TestAdjGraph:
     def test_get_neighbors(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
-        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
         
         for node in graph:
             neighbors = set(graph.get_neighbors(node))
             diff = neighbors - edges[node]
             assert len(diff) == 0
+
+    def test_get_neighbors_invalid(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(generate_unique_lower_names(num_missing))
 
         for node in missing_nodes:
             with pytest.raises(KeyError):
@@ -115,12 +134,30 @@ class TestAdjGraph:
             edges_post = set(graph.get_neighbors(node))
             assert len(edges_post - edges_pre) == 0
             assert len(edges_post - edges[node]) == 0
+            assert graph[node] == 1
+
+    def test__setitem__missing(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(generate_unique_lower_names(num_missing))
+        values = {}
+
+        for node in missing_nodes:
+            with pytest.raises(KeyError):
+                _ = graph[node]
+            value = randint(0, 1000)
+            graph[node] = value
+            values[node] = value
+
+        for node in values.keys():
+            assert graph[node] == values[node]
 
     def test_delete_edge(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        missing_nodes = list(generate_unique_lower_names(num_missing))
 
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
@@ -143,7 +180,7 @@ class TestAdjGraph:
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        missing_nodes = list(generate_unique_lower_names(num_missing))
 
         for key in missing_nodes:
             with pytest.raises(KeyError):
