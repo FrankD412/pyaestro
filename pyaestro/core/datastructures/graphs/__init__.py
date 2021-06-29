@@ -45,7 +45,7 @@ class AdjacencyGraph(Graph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def add_edge(self, a: Hashable, b: Hashable) -> None:
-        """Add an edge between node 'a' and node 'b' to the graph.
+        """Add a bidirectional edge between node 'a' and node 'b' to the graph.
 
         Args:
             a (Hashable): Key identifying side 'a' of an edge.
