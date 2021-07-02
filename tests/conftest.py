@@ -1,15 +1,57 @@
-import itertools
-import os
 import pytest
 import random
-from string import ascii_uppercase
-import sys
 
 from pyaestro.core.datastructures.graphs import AdjacencyGraph
+from pyaestro.core.datastructures.graphs.directed import DirectedAdjGraph
 
-sys.path.append(os.path.join(os.path.dirname(__file__), 'helpers'))
+import tests.helpers.utils as utils
 
-import utils
+
+@pytest.fixture(scope="session")
+def linear_graph():
+    return {
+        "edges": {
+            "A": ["B"],
+            "B": ["C"],
+            "C": ["D"],
+            "D": ["E"],
+            "E": [],
+        },
+        "vertices": {
+            "A": None,
+            "B": None,
+            "C": None,
+            "D": None,
+            "E": None,
+        },
+    }
+
+
+@pytest.fixture(scope="session")
+def diamond_graph():
+    return {
+        "edges": {
+            "A": ["B"],
+            "B": ["C", "D"],
+            "C": ["E"],
+            "D": ["E"],
+            "E": [],
+        },
+        "vertices": {
+            "A": None,
+            "B": None,
+            "C": None,
+            "D": None,
+            "E": None,
+        },
+    }
+
+
+@pytest.fixture(scope="module",
+                params=[AdjacencyGraph, DirectedAdjGraph])
+def graph_type(request):
+    return request.param
+
 
 @pytest.fixture(scope="module",
                 params=[{"malformed": {}, "vertices": {}},
@@ -33,8 +75,8 @@ def sized_node_list(request):
 
 @pytest.fixture(scope="function",
                 params=[1, 2, 4, 7, 8, 16, 32])
-def sized_adj_graph(request):
-    graph = AdjacencyGraph()
+def sized_adj_graph(request, graph_type):
+    graph = graph_type()
     edges = {}
     nodes = list(utils.generate_unique_upper_names(request.param))
 
