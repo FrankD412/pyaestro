@@ -16,7 +16,11 @@ class DirectedAdjGraph(AdjacencyGraph):
             KeyError: Raised when either node 'a' or node 'b'
             do not exist in the graph.
         """
-        self._adj_table[a].add(b)
+        try:
+            # Add each edge
+            self._adj_table[a].add(b)
+        except KeyError as key_error:
+            raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def remove_edge(self, a: Hashable, b: Hashable) -> None:
         """Remove a directed edge from node 'a' to node 'b' to the graph.
