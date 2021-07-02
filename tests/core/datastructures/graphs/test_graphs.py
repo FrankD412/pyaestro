@@ -4,30 +4,30 @@ from math import ceil
 from random import randint, shuffle
 
 from pyaestro.core.datastructures.graphs import AdjacencyGraph
-import utils
+import tests.helpers.utils as utils
 
 
 class TestAdjGraph:
-    def test_repr(self):
-        graph = AdjacencyGraph()
-        assert str(graph) == "AdjacencyGraph()"
+    def test_repr(self, graph_type):
+        graph = graph_type()
+        assert str(graph) == f"{graph_type.__name__}()"
 
-    def test_malformed_spec_validation(self, malformed_specification):
+    def test_malformed_spec_validation(self, graph_type, malformed_specification):
         with pytest.raises(ValidationError) as excinfo:
             AdjacencyGraph.from_specification(malformed_specification)
 
         assert "required property" in str(excinfo)
 
-    def test_valid_spec_validation(self, valid_specification):
+    def test_valid_spec_validation(self, graph_type, valid_specification):
         try:
-            AdjacencyGraph.from_specification(valid_specification)
+            graph_type.from_specification(valid_specification)
         except Exception as exception:
             msg = f"'AdjacencyGraph.from_specification' raised an " \
                 f"exception. Error: {str(exception)}"
             pytest.fail(msg)
 
-    def test_delitem(self, sized_node_list):
-        graph = AdjacencyGraph()
+    def test_delitem(self, graph_type, sized_node_list):
+        graph = graph_type()
         values = {}
         for node in sized_node_list:
             values[node] = randint(0, 100000)
@@ -39,10 +39,9 @@ class TestAdjGraph:
             del graph[value]
 
             assert value not in graph
-            assert value not in graph._vertices
 
-    def test_del_missing(self):
-        graph = AdjacencyGraph()
+    def test_del_missing(self, graph_type):
+        graph = graph_type()
         assert len(graph) == 0
         assert len(graph._vertices) == 0
 
@@ -51,14 +50,17 @@ class TestAdjGraph:
 
         assert "not found in graph" in str(excinfo)
 
-    def test_add_egde(self, valid_specification):
-        graph = AdjacencyGraph()
+    def test_add_egde(self, graph_type, valid_specification):
+        graph = graph_type()
         for vertex, value in valid_specification["vertices"].items():
             graph[vertex] = value
 
         for vertex, neighbors in valid_specification["edges"].items():
             for neighbor in neighbors:
                 graph.add_edge(vertex, neighbor)
+
+    def test_add_edge_invalid(self, graph_type):
+        graph = graph_type()
 
         with pytest.raises(KeyError) as excinfo:
             graph.add_edge("invalid", "A")
@@ -68,7 +70,7 @@ class TestAdjGraph:
         with pytest.raises(KeyError) as excinfo:
             graph.add_edge("A", "invalid")
 
-        assert "'invalid' not found in graph" in str(excinfo)
+        assert "'A' not found in graph" in str(excinfo)
 
         with pytest.raises(KeyError) as excinfo:
             graph.add_edge("invalid", "invalid2")
