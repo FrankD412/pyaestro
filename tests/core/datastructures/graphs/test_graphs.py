@@ -138,7 +138,6 @@ class TestAdjGraph:
 
     def test__setitem__missing(self, sized_adj_graph):
         graph = sized_adj_graph[0]
-        edges = sized_adj_graph[1]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
         values = {}
@@ -156,8 +155,6 @@ class TestAdjGraph:
     def test_delete_edge(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
-        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(generate_unique_lower_names(num_missing))
 
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
@@ -170,16 +167,26 @@ class TestAdjGraph:
                     assert node not in graph.get_neighbors(neighbor)
 
         assert len(set(graph.edges())) == 0
+        
+    def test_delete_edge_missing(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        edges = sized_adj_graph[1]
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        len_edges = len(list(graph.edges()))
+
+        for node in edges.keys():
+            for neighbor in missing_nodes:
+                with pytest.raises(KeyError):
+                    graph.remove_edge(node, neighbor)
+                with pytest.raises(KeyError):
+                    graph.remove_edge(neighbor, node)
+
+        assert len(list(graph.edges())) == len_edges
 
     def test_delete_neighbors(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
-        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(generate_unique_lower_names(num_missing))
-
-        for key in missing_nodes:
-            with pytest.raises(KeyError):
-                graph.delete_edges(key)
 
         for node in edges.keys():
             graph.delete_edges(node)
@@ -187,6 +194,14 @@ class TestAdjGraph:
         
         assert len(set(graph.edges())) == 0
 
+    def test_delete_neighbors(self, sized_adj_graph):
+        graph = sized_adj_graph[0]
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        len_edges = len(list(graph.edges()))
+
         for key in missing_nodes:
             with pytest.raises(KeyError):
                 graph.delete_edges(key)
+        
+        assert len(set(graph.edges())) == len_edges
