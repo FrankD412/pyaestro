@@ -195,7 +195,7 @@ class TestAdjGraph:
         
         assert len(set(graph.edges())) == 0
 
-    def test_delete_neighbors(self, sized_adj_graph):
+    def test_delete_neighbors_missing(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(utils.generate_unique_lower_names(num_missing))
