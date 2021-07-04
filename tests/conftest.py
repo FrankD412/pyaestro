@@ -80,6 +80,7 @@ def sized_adj_graph(request, graph_type):
     graph = graph_type()
     edges = {}
     nodes = list(generate_unique_upper_names(request.param))
+    print(nodes)
 
     for node in nodes:
         graph[node] = None
@@ -95,4 +96,5 @@ def sized_adj_graph(request, graph_type):
             edges[node].add(neighbor)
             edges[neighbor].add(node)
 
+    print(edges)
     return graph, edges

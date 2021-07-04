@@ -10,7 +10,7 @@ def generate_unique_upper_names(count: int) -> Iterable[str]:
             number = number + 1
             if number > count:
                 return
-            yield i
+            yield "".join(i)
 
 
 def generate_unique_lower_names(count: int) -> Iterable[str]:
@@ -20,4 +20,4 @@ def generate_unique_lower_names(count: int) -> Iterable[str]:
             number = number + 1
             if number > count:
                 return
-            yield i
+            yield "".join(i)
