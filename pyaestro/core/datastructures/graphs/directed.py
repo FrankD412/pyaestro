@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Hashable
 
 from . import AdjacencyGraph
@@ -42,20 +43,47 @@ class DirectedAdjGraph(AdjacencyGraph):
         self._adj_table[key].clear()
 
 
-class DirectedAcyclicAdjGraph(DirectedAdjGraph):
+class class DirectedAcyclicAdjGraph(DirectedAdjGraph):
     def check_cycles(self) -> bool:
         """Check for cycles in a graph instance.
 
         Returns:
             bool: True if the graph contains a cycle, False otherwise.
         """
+        visited = set()
+        rstack = set()
+        for v in self.values:
+            if v not in visited:
+                if self._detect_cycle(v, visited, rstack):
+                    return True
+                
+    def _detect_cycle(self, v, visited, rstack):
+        """
+        Recurse through nodes testing for loops.
+        :param v: Name of source vertex to search from.
+        :param visited: Set of the nodes we've visited so far.
+        :param rstack: Set of nodes currently on the path.
+        """
+        visited.add(v)
+        rstack.add(v)
+
+        for c in self.adjacency_table[v]:
+            if c not in visited:
+                if self._detect_cycle(c, visited, rstack):
+                    return True
+            elif c in rstack:
+                return True
+        rstack.remove(v)
         return False
 
     @staticmethod
     def __cycle_check__(func):
-        def cycle_wrapper(self, *args, **kwargs):
+    def cycle_wrapper(self, *args, **kwargs):
             ret_value = func(*args, **kwargs)
             if self.check_cycles():
                 raise Exception()
-
             return ret_value
+
+    @DirectedAcyclicAdjGraph.__cycle_check__
+    def add_edge(self, a: Hashable, b: Hashable) -> None:
+        super.add_edge(a, b)
