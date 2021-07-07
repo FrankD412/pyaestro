@@ -4,6 +4,7 @@ from ..abstracts import Graph
 
 
 class AdjacencyGraph(Graph):
+    """An adjacency list implementation of the abstract Graph API."""
     def __init__(self):
         self._adj_table = {}
         super().__init__()
