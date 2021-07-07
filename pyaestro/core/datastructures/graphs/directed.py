@@ -1,11 +1,13 @@
 from __future__ import annotations
-from typing import Hashable
+from typing import Dict, Hashable, Type
 
 from . import AdjacencyGraph
+from ..abstracts import Graph
+from .algorithms import detect_cycles
 
 
 class DirectedAdjGraph(AdjacencyGraph):
-
+    """A directed variant of the AdjacencyGraph data structure."""
     def add_edge(self, a: Hashable, b: Hashable) -> None:
         """Add a directed edge from node 'a' to node 'b' to the graph.
 
@@ -43,47 +45,25 @@ class DirectedAdjGraph(AdjacencyGraph):
         self._adj_table[key].clear()
 
 
-class class DirectedAcyclicAdjGraph(DirectedAdjGraph):
-    def check_cycles(self) -> bool:
-        """Check for cycles in a graph instance.
+class DirectedAcyclicAdjGraph(DirectedAdjGraph):
+    """A directed acyclic variant of the AdjacencyGraph data structure."""
 
-        Returns:
-            bool: True if the graph contains a cycle, False otherwise.
-        """
-        visited = set()
-        rstack = set()
-        for v in self.values:
-            if v not in visited:
-                if self._detect_cycle(v, visited, rstack):
-                    return True
-                
-    def _detect_cycle(self, v, visited, rstack):
-        """
-        Recurse through nodes testing for loops.
-        :param v: Name of source vertex to search from.
-        :param visited: Set of the nodes we've visited so far.
-        :param rstack: Set of nodes currently on the path.
-        """
-        visited.add(v)
-        rstack.add(v)
-
-        for c in self.adjacency_table[v]:
-            if c not in visited:
-                if self._detect_cycle(c, visited, rstack):
-                    return True
-            elif c in rstack:
-                return True
-        rstack.remove(v)
-        return False
-
-    @staticmethod
-    def __cycle_check__(func):
-    def cycle_wrapper(self, *args, **kwargs):
-            ret_value = func(*args, **kwargs)
-            if self.check_cycles():
-                raise Exception()
+    def _cycle_check(function):
+        def cycle_check_wrapper(*args, **kwargs):
+            ret_value = function(*args, **kwargs)
+            if detect_cycles(args[0]):
+                raise Exception("Cycle detected")
             return ret_value
+        return cycle_check_wrapper
 
-    @DirectedAcyclicAdjGraph.__cycle_check__
+    @_cycle_check
     def add_edge(self, a: Hashable, b: Hashable) -> None:
-        super.add_edge(a, b)
+        super().add_edge(a, b)
+        
+    @_cycle_check
+    @classmethod
+    def from_specification(
+        cls,
+        specification: Dict[Hashable, Dict[Hashable, object]]
+    ) -> Type[Graph]:
+        return super().from_specification(specification)

@@ -32,7 +32,7 @@ def breadth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
 
 
 def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
-    """[summary]
+    """Perform a depth-first search of the provided Graph.
 
     Args:
         graph (Graph): [description]
@@ -56,3 +56,44 @@ def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
             visited.add(node)
 
         yield root, parent
+
+
+def _detect_cycle(
+    graph: Graph, node:Hashable, visited: Set[Hashable], rstack: Set[Hashable]
+    ) -> bool:
+        """
+        Recurse through nodes testing for loops.
+        :param v: Name of source vertex to search from.
+        :param visited: Set of the nodes we've visited so far.
+        :param rstack: Set of nodes currently on the path.
+        """
+        visited.add(node)
+        rstack.add(node)
+
+        for neighbor in graph.get_neighbors(node):
+            if neighbor not in visited:
+                if _detect_cycle(graph, neighbor, visited, rstack):
+                    return True
+            elif neighbor in rstack:
+                return True
+        rstack.remove(node)
+        return False
+
+
+def detect_cycles(graph: Graph) -> bool:
+    """Detect a cycle in a graph.
+
+    Args:
+        graph (Graph): An instance of a Graph data structure.
+
+    Returns:
+        bool: Returns True if a cycle is detected, False otherwise.
+    """
+    visited = set()
+    rstack = set()
+
+    for node in graph:
+        if node not in visited:
+            if _detect_cycle(graph, node, visited, rstack):
+                return True
+    return False
