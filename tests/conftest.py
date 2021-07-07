@@ -2,8 +2,8 @@ import pytest
 import random
 
 from .helpers.utils import generate_unique_upper_names
-from pyaestro.core.datastructures.graphs import AdjacencyGraph
-from pyaestro.core.datastructures.graphs.directed import DirectedAdjGraph
+from pyaestro.core.datastructures.graphs.adjacency import \
+    AdjacencyGraph, DirectedAdjGraph
 
 import tests.helpers.utils as utils
 

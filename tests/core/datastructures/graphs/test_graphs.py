@@ -3,7 +3,7 @@ import pytest
 from math import ceil
 from random import randint, shuffle
 
-from pyaestro.core.datastructures.graphs import AdjacencyGraph
+from pyaestro.core.datastructures.graphs.adjacency import AdjacencyGraph
 import tests.helpers.utils as utils
 
 
