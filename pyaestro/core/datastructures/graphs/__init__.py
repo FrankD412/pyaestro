@@ -20,7 +20,7 @@ class AcyclicGraph(Graph):
     @_cycle_check
     def add_edge(self, a: Hashable, b: Hashable) -> None:
         super().add_edge(a, b)
-        
+
     @_cycle_check
     @classmethod
     def from_specification(

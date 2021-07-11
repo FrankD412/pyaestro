@@ -33,7 +33,7 @@ class DirectedAdjGraph(Graph):
                 yield dest
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
-    
+
         """A directed variant of the AdjacencyGraph data structure."""
     def add_edge(self, a: Hashable, b: Hashable) -> None:
         """Add a directed edge from node 'a' to node 'b' to the graph.
@@ -112,7 +112,6 @@ class AdjacencyGraph(DirectedAdjGraph):
         if a != b:
             super().remove_edge(b, a)
         super().remove_edge(a, b)
-            
 
 
 class DirectedAcyclicAdjGraph(AcyclicGraph, DirectedAdjGraph):
