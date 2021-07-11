@@ -146,4 +146,3 @@ class TestAbstractGraph:
         for key in graph:
             values.append(key)
         assert sorted(values) == sorted(sized_node_list)
-

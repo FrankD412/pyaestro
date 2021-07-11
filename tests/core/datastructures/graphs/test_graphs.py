@@ -3,8 +3,8 @@ import pytest
 from math import ceil
 from random import randint, shuffle
 
-from pyaestro.core.datastructures.graphs import AdjacencyGraph
-from tests.helpers.utils import generate_unique_lower_names
+from pyaestro.core.datastructures.graphs.adjacency import AdjacencyGraph
+import tests.helpers.utils as utils
 
 
 class TestAdjGraph:
@@ -12,9 +12,11 @@ class TestAdjGraph:
         graph = graph_type()
         assert str(graph) == f"{graph_type.__name__}()"
 
-    def test_malformed_spec_validation(self, graph_type, malformed_specification):
+    def test_malformed_spec_validation(
+        self, graph_type, malformed_specification
+    ):
         with pytest.raises(ValidationError) as excinfo:
-            AdjacencyGraph.from_specification(malformed_specification)
+            graph_type.from_specification(malformed_specification)
 
         assert "required property" in str(excinfo)
 
@@ -95,7 +97,7 @@ class TestAdjGraph:
     def test_get_neighbors(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
-        
+
         for node in graph:
             neighbors = set(graph.get_neighbors(node))
             diff = neighbors - edges[node]
@@ -103,7 +105,7 @@ class TestAdjGraph:
 
     def test_get_neighbors_invalid(self, sized_adj_graph):
         graph = sized_adj_graph[0]
-        edges = sized_adj_graph[1]
+
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
 
@@ -122,13 +124,13 @@ class TestAdjGraph:
 
         diff = set(graph.edges()) - set(edges)
         assert len(diff) == 0
-    
+
     def test__setitem__(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
 
         for node in graph:
-            assert graph[node] == None
+            assert graph[node] is None
             edges_pre = set(graph.get_neighbors(node))
             graph[node] = 1
             edges_post = set(graph.get_neighbors(node))
@@ -167,7 +169,7 @@ class TestAdjGraph:
                     assert node not in graph.get_neighbors(neighbor)
 
         assert len(set(graph.edges())) == 0
-        
+
     def test_delete_edge_missing(self, sized_adj_graph):
         graph = sized_adj_graph[0]
         edges = sized_adj_graph[1]
@@ -191,7 +193,7 @@ class TestAdjGraph:
         for node in edges.keys():
             graph.delete_edges(node)
             assert len(set(graph.get_neighbors(node))) == 0
-        
+
         assert len(set(graph.edges())) == 0
 
     def test_delete_neighbors_missing(self, sized_adj_graph):
@@ -203,5 +205,5 @@ class TestAdjGraph:
         for key in missing_nodes:
             with pytest.raises(KeyError):
                 graph.delete_edges(key)
-        
+
         assert len(set(graph.edges())) == len_edges
