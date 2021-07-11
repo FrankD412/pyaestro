@@ -5,8 +5,6 @@ from .helpers.utils import generate_unique_upper_names
 from pyaestro.core.datastructures.graphs.adjacency import \
     AdjacencyGraph, DirectedAdjGraph
 
-import tests.helpers.utils as utils
-
 
 @pytest.fixture(scope="session")
 def linear_graph():
@@ -90,7 +88,7 @@ def sized_adj_graph(request, graph_type):
         neighbors = random.choices(
             nodes, k=random.randint(1, len(nodes))
         )
-        
+
         for neighbor in neighbors:
             graph.add_edge(node, neighbor)
             edges[node].add(neighbor)
