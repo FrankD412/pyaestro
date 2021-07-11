@@ -59,25 +59,27 @@ def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
 
 
 def _detect_cycle(
-    graph: Graph, node:Hashable, visited: Set[Hashable], rstack: Set[Hashable]
-    ) -> bool:
-        """
-        Recurse through nodes testing for loops.
-        :param v: Name of source vertex to search from.
-        :param visited: Set of the nodes we've visited so far.
-        :param rstack: Set of nodes currently on the path.
-        """
-        visited.add(node)
-        rstack.add(node)
+    graph: Graph, node: Hashable, visited: Set[Hashable], rstack: Set[Hashable]
+) -> bool:
+    """Recurse through nodes testing for loops.
 
-        for neighbor in graph.get_neighbors(node):
-            if neighbor not in visited:
-                if _detect_cycle(graph, neighbor, visited, rstack):
-                    return True
-            elif neighbor in rstack:
+    Args:
+        graph (Graph): An instance of a Graph data structure.
+        node (Hashable): Name of source vertex to search from.
+        visited (Set[Hashable]): Set of the nodes we've visited so far.
+        rstack(Set[Hashable]): Set of nodes currently on the path.
+
+    Returns:
+        bool: Returns True if a cycle is detected, False otherwise.
+    """
+    for neighbor in graph.get_neighbors(node):
+        if neighbor not in visited:
+            if _detect_cycle(graph, neighbor, visited, rstack):
                 return True
-        rstack.remove(node)
-        return False
+        elif neighbor in rstack:
+            return True
+    rstack.remove(node)
+    return False
 
 
 def detect_cycles(graph: Graph) -> bool:
