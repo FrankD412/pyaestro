@@ -13,6 +13,7 @@ python = ">=3.6"
 coloredlogs = "*"
 psutil = "^5.8.0"
 jsonschema = "*"
+typing-extensions = "^3.10.0"
 
 
 
