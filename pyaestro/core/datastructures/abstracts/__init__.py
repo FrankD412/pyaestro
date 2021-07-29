@@ -1,3 +1,3 @@
-from .graphs import Graph
+from .graphs import Graph, Edge, UndirectedGraph
 
-__all__ = ["Graph", ]
+__all__ = ("Edge", "Graph", "UndirectedGraph")
