@@ -1,10 +1,12 @@
 from typing import Hashable, Iterable, Tuple
 
+from pyaestro.typing import Comparable
 from . import AcyclicGraph
-from ..abstracts import Graph
+from ..abstracts import Graph, UndirectedGraph
+from . import Edge
 
 
-class DirectedAdjGraph(Graph):
+class AdjacencyGraph(Graph):
     """An adjacency list implementation a directed graph."""
     def __init__(self):
         self._adj_table = {}
@@ -22,33 +24,26 @@ class DirectedAdjGraph(Graph):
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
-    def edges(self) -> Iterable[Tuple[Hashable]]:
+    def edges(self) -> Iterable[Edge]:
         for src, adj_list in self._adj_table.items():
-            for dest in adj_list:
-                yield src, dest
+            for dest, weight in adj_list:
+                yield Edge(src, dest, weight)
 
-    def get_neighbors(self, node: Hashable) -> Iterable[Hashable]:
+    def get_neighbors(self, node: Hashable) -> Iterable[Edge]:
         try:
-            for dest in self._adj_table[node]:
-                yield dest
+            for dest, weight in self._adj_table[node]:
+                yield Edge(node, dest, weight)
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
         """A directed variant of the AdjacencyGraph data structure."""
-    def add_edge(self, a: Hashable, b: Hashable) -> None:
-        """Add a directed edge from node 'a' to node 'b' to the graph.
 
-        Args:
-            a (Hashable): Key identifying side 'a' of an edge.
-            b (Hashable): Key identifying side 'b' of an edge.
-
-        Raises:
-            KeyError: Raised when either node 'a' or node 'b'
-            do not exist in the graph.
-        """
+    def add_edge(
+        self, a: Hashable, b: Hashable, weight: Comparable = 0
+    ) -> None:
         try:
             # Add each edge
-            self._adj_table[a].add(b)
+            self._adj_table[a].add((b, weight))
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
@@ -69,10 +64,13 @@ class DirectedAdjGraph(Graph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def delete_edges(self, key: Hashable) -> None:
-        self._adj_table[key].clear()
+        try:
+            self._adj_table[key].clear()
+        except KeyError as key_error:
+            raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
 
-class AdjacencyGraph(DirectedAdjGraph):
+class UndirectedAdjGraph(UndirectedGraph, AdjacencyGraph):
     """An adjacency list implementation a bidirectional graph."""
 
     def delete_edges(self, key: Hashable) -> None:
@@ -84,36 +82,7 @@ class AdjacencyGraph(DirectedAdjGraph):
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
-    def add_edge(self, a: Hashable, b: Hashable) -> None:
-        """Add a bidirectional edge between nodes 'a' to 'b' to the graph.
 
-        Args:
-            a (Hashable): Key identifying side 'a' of an edge.
-            b (Hashable): Key identifying side 'b' of an edge.
-
-        Raises:
-            KeyError: Raised when either node 'a' or node 'b'
-            do not exist in the graph.
-        """
-        super().add_edge(a, b)
-        super().add_edge(b, a)
-
-    def remove_edge(self, a: Hashable, b: Hashable) -> None:
-        """Remove the bidirectional edge from nodes 'a' to 'b' from the graph.
-
-        Args:
-            a (Hashable): Key identifying side 'a' of an edge.
-            b (Hashable): Key identifying side 'b' of an edge.
-
-        Raises:
-            KeyError: Raised when either node 'a' or node 'b'
-            do not exist in the graph.
-        """
-        if a != b:
-            super().remove_edge(b, a)
-        super().remove_edge(a, b)
-
-
-class DirectedAcyclicAdjGraph(AcyclicGraph, DirectedAdjGraph):
+class AcyclicAdjGraph(AcyclicGraph, AdjacencyGraph):
     """A directed acyclic variant of the AdjacencyGraph data structure."""
     ...

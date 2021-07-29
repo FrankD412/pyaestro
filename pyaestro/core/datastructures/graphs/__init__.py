@@ -1,8 +1,9 @@
 import functools
 from typing import Dict, Hashable, Type
 
-from ..abstracts import Graph
+from ..abstracts.graphs import Edge, Graph
 from .algorithms import detect_cycles
+from pyaestro.typing import Comparable
 
 
 class AcyclicGraph(Graph):
