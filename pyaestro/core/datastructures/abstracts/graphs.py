@@ -78,14 +78,17 @@ class Graph(Specifiable, ABC):
             schema for a Graph.
         """
         graph = cls()
-        jsonschema.validate(specification, schema=cls._dict_schema)
+        jsonschema.validate(
+            specification, schema=cls._dict_schema,
+            types={'array': (list, tuple)}
+        )
 
         for vertex, value in specification["vertices"].items():
             graph[vertex] = value
 
         for node, neighbors in specification["edges"].items():
-            for neighbor in neighbors:
-                graph.add_edge(node, neighbor)
+            for neighbor, weight in neighbors:
+                graph.add_edge(node, neighbor, weight)
 
         return graph
 
