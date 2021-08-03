@@ -2,6 +2,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from hashlib import md5
 import json
 import jsonschema
 from os.path import abspath, dirname, join
@@ -18,6 +19,14 @@ class Edge:
     source: str
     destination: str
     value: Comparable = 0
+
+    def __hash__(self):
+        return hash(f"{self.source}{self.destination}")
+
+    def __lt__(self, other: Edge):
+        if self.value < other.value:
+            return True
+        return False
 
 
 class Graph(Specifiable, ABC):
