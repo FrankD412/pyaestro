@@ -2,18 +2,16 @@ import pytest
 import random
 
 from .helpers.utils import generate_unique_upper_names
-from pyaestro.core.datastructures.graphs.adjacency import \
-    AdjacencyGraph, DirectedAdjGraph
 
 
 @pytest.fixture(scope="session")
 def linear_graph():
     return {
         "edges": {
-            "A": ["B"],
-            "B": ["C"],
-            "C": ["D"],
-            "D": ["E"],
+            "A": [["B", 0]],
+            "B": [["C", 0]],
+            "C": [["D", 0]],
+            "D": [["E", 0]],
             "E": [],
         },
         "vertices": {
@@ -30,10 +28,10 @@ def linear_graph():
 def diamond_graph():
     return {
         "edges": {
-            "A": ["B"],
-            "B": ["C", "D"],
-            "C": ["E"],
-            "D": ["E"],
+            "A": [("B", 0)],
+            "B": [("C", 0), ("D", 0)],
+            "C": [("E", 0)],
+            "D": [("E", 0)],
             "E": [],
         },
         "vertices": {
@@ -44,12 +42,6 @@ def diamond_graph():
             "E": None,
         },
     }
-
-
-@pytest.fixture(scope="module",
-                params=[AdjacencyGraph, DirectedAdjGraph])
-def graph_type(request):
-    return request.param
 
 
 @pytest.fixture(scope="module",
@@ -74,7 +66,7 @@ def sized_node_list(request):
 
 @pytest.fixture(scope="function",
                 params=[1, 2, 4, 7, 8, 16, 32])
-def sized_adj_graph(request, graph_type):
+def sized_unweighted_graph(request, graph_type):
     graph = graph_type()
     edges = {}
     nodes = list(generate_unique_upper_names(request.param))
@@ -91,8 +83,8 @@ def sized_adj_graph(request, graph_type):
 
         for neighbor in neighbors:
             graph.add_edge(node, neighbor)
-            edges[node].add(neighbor)
-            edges[neighbor].add(node)
+            edges[node].add((neighbor, 0))
+            edges[neighbor].add((node, 0))
 
     print(edges)
     return graph, edges
