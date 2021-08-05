@@ -76,7 +76,8 @@ class Graph(Specifiable, ABC):
         Args:
             specification (Dict[Hashable, Dictionary[Hashable, object]]):
             A dictionary containing two keys:
-                - edges: A dictionary of adjacency lists.
+                - edges: A dictionary of neighbors for each vertex containing
+                    a list of (neighbor, weight) tuples.
                 - vertices: A dictionary mapping keys to their values.
 
         Returns:
