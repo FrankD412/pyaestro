@@ -167,7 +167,7 @@ class Graph(Specifiable, ABC):
         raise NotImplementedError
 
 
-class UndirectedGraph(Graph):
+class BidirectionalGraph(Graph):
     def add_edge(self, a: Hashable, b: Hashable, weight: Comparable = 0):
         """Add an undirected edge to the graph.
 
