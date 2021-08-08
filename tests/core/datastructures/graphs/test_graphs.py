@@ -5,11 +5,11 @@ from random import randint, shuffle
 
 from pyaestro.core.datastructures.graphs import Edge
 from pyaestro.core.datastructures.graphs.adjacency import \
-    AdjacencyGraph, UndirectedAdjGraph
+    AdjacencyGraph, BidirectionalAdjGraph
 from tests.core.datastructures.graphs import ConcreteAbstractGraph
 import tests.helpers.utils as utils
 
-GRAPHS = (ConcreteAbstractGraph, AdjacencyGraph, UndirectedAdjGraph)
+GRAPHS = (ConcreteAbstractGraph, AdjacencyGraph, BidirectionalAdjGraph)
 
 
 @pytest.mark.parametrize("graph_type", GRAPHS)
@@ -145,7 +145,7 @@ class TestBaseGraphInterface:
 
 
 
-@pytest.mark.parametrize("graph_type", [UndirectedAdjGraph])
+@pytest.mark.parametrize("graph_type", [BidirectionalAdjGraph])
 class TestBidirectional:
 
     def test_add_edge(self, graph_type, valid_specification):
@@ -214,13 +214,46 @@ class TestBidirectional:
         diff = set(graph.edges()) - set(edges)
         assert len(diff) == 0
 
-'''
+    def test_delete_neighbors(self, sized_unweighted_graph):
+        graph = sized_unweighted_graph[0]
+        edges = sized_unweighted_graph[1]
 
+        for node in edges.keys():
+            graph.delete_edges(node)
+            assert len(set(graph.get_neighbors(node))) == 0
 
+        assert len(set(graph.edges())) == 0
 
-    def test_delete_edge_missing(self, sized_adj_graph):
-        graph = sized_adj_graph[0]
-        edges = sized_adj_graph[1]
+    def test_delete_neighbors_missing(self, sized_unweighted_graph):
+        graph = sized_unweighted_graph[0]
+        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
+        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        len_edges = len(list(graph.edges()))
+
+        for key in missing_nodes:
+            with pytest.raises(KeyError):
+                graph.delete_edges(key)
+
+    def test_remove_edge(self, sized_unweighted_graph):
+        graph = sized_unweighted_graph[0]
+        edges = sized_unweighted_graph[1]
+
+        for node in edges.keys():
+            pruned = list(graph.get_neighbors(node))
+            while pruned:
+                neighbor = pruned.pop()
+                graph.remove_edge(neighbor.source, neighbor.destination)
+
+                assert neighbor not in graph.get_neighbors(node)
+                if type(graph) is AdjacencyGraph:
+                    assert node not in graph.get_neighbors(neighbor)
+
+        assert len(set(graph.edges())) == 0
+
+    def test_remove_edge_missing(self, sized_unweighted_graph):
+        graph = sized_unweighted_graph[0]
+        edges = sized_unweighted_graph[1]
+
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(utils.generate_unique_lower_names(num_missing))
         len_edges = len(list(graph.edges()))
@@ -234,41 +267,3 @@ class TestBidirectional:
 
         assert len(list(graph.edges())) == len_edges
 
-    def test_delete_neighbors(self, sized_adj_graph):
-        graph = sized_adj_graph[0]
-        edges = sized_adj_graph[1]
-
-        for node in edges.keys():
-            graph.delete_edges(node)
-            assert len(set(graph.get_neighbors(node))) == 0
-
-        assert len(set(graph.edges())) == 0
-
-    def test_delete_neighbors_missing(self, sized_adj_graph):
-        graph = sized_adj_graph[0]
-        num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
-        len_edges = len(list(graph.edges()))
-
-        for key in missing_nodes:
-            with pytest.raises(KeyError):
-                graph.delete_edges(key)
-
-        assert len(set(graph.edges())) == len_edges
-
-    def test_delete_edge(self, sized_adj_graph):
-        graph = sized_adj_graph[0]
-        edges = sized_adj_graph[1]
-
-        for node in edges.keys():
-            pruned = list(graph.get_neighbors(node))
-            while pruned:
-                neighbor = pruned.pop()
-                graph.remove_edge(node, neighbor)
-
-                assert neighbor not in graph.get_neighbors(node)
-                if type(graph) is AdjacencyGraph:
-                    assert node not in graph.get_neighbors(neighbor)
-
-        assert len(set(graph.edges())) == 0
-'''
