@@ -2,7 +2,7 @@ from typing import Hashable, Iterable, Tuple
 
 from pyaestro.typing import Comparable
 from . import AcyclicGraph
-from ..abstracts import Graph, UndirectedGraph
+from ..abstracts import Graph, BidirectionalGraph
 from . import Edge
 
 
@@ -15,7 +15,7 @@ class AdjacencyGraph(Graph):
     def __setitem__(self, key: Hashable, value: object) -> None:
         super().__setitem__(key, value)
         if key not in self._adj_table:
-            self._adj_table[key] = set()
+            self._adj_table[key] = {}
 
     def __delitem__(self, key: Hashable) -> None:
         try:
@@ -26,12 +26,12 @@ class AdjacencyGraph(Graph):
 
     def edges(self) -> Iterable[Edge]:
         for src, adj_list in self._adj_table.items():
-            for dest, weight in adj_list:
+            for dest, weight in adj_list.items():
                 yield Edge(src, dest, weight)
 
     def get_neighbors(self, node: Hashable) -> Iterable[Edge]:
         try:
-            for dest, weight in self._adj_table[node]:
+            for dest, weight in self._adj_table[node].items():
                 yield Edge(node, dest, weight)
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
@@ -43,7 +43,7 @@ class AdjacencyGraph(Graph):
     ) -> None:
         try:
             # Add each edge
-            self._adj_table[a].add((b, weight))
+            self._adj_table[a][b] = weight
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
@@ -59,7 +59,7 @@ class AdjacencyGraph(Graph):
             do not exist in the graph.
         """
         try:
-            self._adj_table[a].remove(b)
+            del self._adj_table[a][b]
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
@@ -70,14 +70,14 @@ class AdjacencyGraph(Graph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
 
-class UndirectedAdjGraph(UndirectedGraph, AdjacencyGraph):
+class BidirectionalAdjGraph(BidirectionalGraph, AdjacencyGraph):
     """An adjacency list implementation a bidirectional graph."""
 
     def delete_edges(self, key: Hashable) -> None:
         try:
-            self._adj_table[key].discard(key)
-            for neighbor in self._adj_table[key]:
-                self._adj_table[neighbor].remove(key)
+            self._adj_table[key].pop(key, None)
+            for neighbor, weight in self._adj_table[key].items():
+                del self._adj_table[neighbor][key]
             self._adj_table[key].clear()
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
