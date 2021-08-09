@@ -13,20 +13,21 @@ GRAPHS = (ConcreteAbstractGraph, AdjacencyGraph, BidirectionalAdjGraph)
 
 
 @pytest.mark.parametrize("graph_type", GRAPHS)
+@pytest.mark.parametrize("weighted", [True, False])
 class TestBaseGraphInterface:
     def test_repr(self, graph_type):
         graph = graph_type()
         assert str(graph) == f"{graph_type.__name__}()"
 
     def test_malformed_spec_validation(
-        self, graph_type, malformed_specification
+        self, graph_type, weighted, malformed_specification
     ):
         with pytest.raises(ValidationError) as excinfo:
             graph_type.from_specification(malformed_specification)
 
         assert "required property" in str(excinfo)
 
-    def test_contains(self, graph_type, sized_node_list):
+    def test_contains(self, graph_type, weighted, sized_node_list):
         graph = graph_type()
         print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         for node in sized_node_list:
@@ -36,7 +37,7 @@ class TestBaseGraphInterface:
         for node in sized_node_list:
             assert node in graph
 
-    def test_valid_spec_validation(self, graph_type, valid_specification):
+    def test_valid_spec_validation(self, graph_type, weighted, valid_specification):
         try:
             graph_type.from_specification(valid_specification)
         except Exception as exception:
@@ -44,7 +45,7 @@ class TestBaseGraphInterface:
                 f"exception. Error: {str(exception)}"
             pytest.fail(msg)
 
-    def test_delitem(self, graph_type, sized_node_list):
+    def test_delitem(self, graph_type, weighted, sized_node_list):
         graph = graph_type()
         values = {}
         for node in sized_node_list:
@@ -58,7 +59,7 @@ class TestBaseGraphInterface:
 
             assert value not in graph
 
-    def test_len(self, graph_type, sized_node_list):
+    def test_len(self, graph_type, weighted, sized_node_list):
         graph = graph_type()
         print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         for node in sized_node_list:
@@ -66,7 +67,7 @@ class TestBaseGraphInterface:
 
         assert len(sized_node_list) == len(graph)
 
-    def test_del_missing(self, graph_type):
+    def test_del_missing(self, graph_type, weighted):
         graph = graph_type()
         assert len(graph) == 0
         assert len(graph._vertices) == 0
@@ -76,7 +77,7 @@ class TestBaseGraphInterface:
 
         assert "not found in graph" in str(excinfo)
 
-    def test_iter(self, graph_type, sized_node_list):
+    def test_iter(self, graph_type, weighted, sized_node_list):
         graph = graph_type()
         values = []
         for key in graph:
@@ -92,11 +93,11 @@ class TestBaseGraphInterface:
             values.append(key)
         assert sorted(values) == sorted(sized_node_list)
 
-    def test_repr(self, graph_type):
+    def test_repr(self, weighted, graph_type):
         graph = graph_type()
         assert str(graph) == f"{graph_type.__name__}()"
 
-    def test_getitem(self, graph_type, sized_node_list):
+    def test_getitem(self, graph_type, weighted, sized_node_list):
         graph = graph_type()
         print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         values = {}
@@ -108,7 +109,7 @@ class TestBaseGraphInterface:
         for node in sized_node_list:
             assert graph[node] == values[node]
 
-    def test_getitem_missing(self, graph_type):
+    def test_getitem_missing(self, weighted, graph_type):
         graph = graph_type()
         assert len(graph) == 0
         assert len(graph._vertices) == 0
@@ -118,17 +119,17 @@ class TestBaseGraphInterface:
 
         assert "not found in graph" in str(excinfo)
 
-    def test__setitem__(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
-        edges = sized_unweighted_graph[1]
+    def test__setitem__(self, graph_type, weighted, sized_graph):
+        graph = sized_graph[0]
+        edges = sized_graph[1]
 
         for node in graph:
             assert graph[node] is None
             graph[node] = 1
             assert graph[node] == 1
 
-    def test__setitem__missing(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
+    def test__setitem__missing(self, graph_type, weighted, sized_graph):
+        graph = sized_graph[0]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(utils.generate_unique_lower_names(num_missing))
         values = {}
@@ -144,11 +145,11 @@ class TestBaseGraphInterface:
             assert graph[node] == values[node]
 
 
-
 @pytest.mark.parametrize("graph_type", [BidirectionalAdjGraph])
+@pytest.mark.parametrize("weighted", [False])
 class TestBidirectional:
 
-    def test_add_edge(self, graph_type, valid_specification):
+    def test_add_edge(self, graph_type, weighted, valid_specification):
         graph = graph_type()
         edges = set()
         for vertex, value in valid_specification["vertices"].items():
@@ -163,7 +164,7 @@ class TestBidirectional:
         diff = set(graph.edges()) - edges
         assert len(diff) == 0
 
-    def test_add_edge_invalid(self, graph_type):
+    def test_add_edge_invalid(self, graph_type, weighted):
         graph = graph_type()
 
         with pytest.raises(KeyError) as excinfo:
@@ -181,9 +182,9 @@ class TestBidirectional:
 
         assert "'invalid' not found in graph" in str(excinfo)
 
-    def test_get_neighbors(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
-        edges = sized_unweighted_graph[1]
+    def test_get_neighbors(self, sized_graph, graph_type, weighted):
+        graph = sized_graph[0]
+        edges = sized_graph[1]
 
         for node in graph:
             neighbors = set(graph.get_neighbors(node))
@@ -192,8 +193,8 @@ class TestBidirectional:
             diff = neighbors - edge_set
             assert len(diff) == 0
 
-    def test_get_neighbors_invalid(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
+    def test_get_neighbors_invalid(self, sized_graph, graph_type, weighted):
+        graph = sized_graph[0]
 
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
@@ -203,10 +204,10 @@ class TestBidirectional:
                 for neighbor in graph.get_neighbors(node):
                     continue
 
-    def test_edges(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
+    def test_edges(self, sized_graph, graph_type, weighted):
+        graph = sized_graph[0]
         edges = set()
-        for node, edge_set in sized_unweighted_graph[1].items():
+        for node, edge_set in sized_graph[1].items():
             for e in edge_set:
                 edges.add(Edge(node, e[0], e[1]))
                 edges.add(Edge(e[0], node, e[1]))
@@ -214,9 +215,9 @@ class TestBidirectional:
         diff = set(graph.edges()) - set(edges)
         assert len(diff) == 0
 
-    def test_delete_neighbors(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
-        edges = sized_unweighted_graph[1]
+    def test_delete_neighbors(self, sized_graph, graph_type, weighted):
+        graph = sized_graph[0]
+        edges = sized_graph[1]
 
         for node in edges.keys():
             graph.delete_edges(node)
@@ -224,8 +225,8 @@ class TestBidirectional:
 
         assert len(set(graph.edges())) == 0
 
-    def test_delete_neighbors_missing(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
+    def test_delete_neighbors_missing(self, sized_graph, graph_type, weighted):
+        graph = sized_graph[0]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(utils.generate_unique_lower_names(num_missing))
         len_edges = len(list(graph.edges()))
@@ -234,9 +235,9 @@ class TestBidirectional:
             with pytest.raises(KeyError):
                 graph.delete_edges(key)
 
-    def test_remove_edge(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
-        edges = sized_unweighted_graph[1]
+    def test_remove_edge(self, sized_graph, graph_type, weighted):
+        graph = sized_graph[0]
+        edges = sized_graph[1]
 
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
@@ -250,9 +251,9 @@ class TestBidirectional:
 
         assert len(set(graph.edges())) == 0
 
-    def test_remove_edge_missing(self, sized_unweighted_graph):
-        graph = sized_unweighted_graph[0]
-        edges = sized_unweighted_graph[1]
+    def test_remove_edge_missing(self, sized_graph, graph_type, weighted):
+        graph = sized_graph[0]
+        edges = sized_graph[1]
 
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(utils.generate_unique_lower_names(num_missing))
