@@ -3,6 +3,7 @@ import pytest
 from math import ceil
 from random import randint, shuffle
 
+from pyaestro.core.datastructures.abstracts import BidirectionalGraph
 from pyaestro.core.datastructures.graphs import Edge
 from pyaestro.core.datastructures.graphs.adjacency import \
     AdjacencyGraph, BidirectionalAdjGraph
@@ -145,9 +146,9 @@ class TestBaseGraphInterface:
             assert graph[node] == values[node]
 
 
-@pytest.mark.parametrize("graph_type", [BidirectionalAdjGraph])
-@pytest.mark.parametrize("weighted", [False])
-class TestBidirectional:
+@pytest.mark.parametrize("graph_type", (AdjacencyGraph, BidirectionalAdjGraph))
+@pytest.mark.parametrize("weighted", [True, False])
+class TestFullGraphs:
 
     def test_add_edge(self, graph_type, weighted, valid_specification):
         graph = graph_type()
@@ -238,6 +239,7 @@ class TestBidirectional:
     def test_remove_edge(self, sized_graph, graph_type, weighted):
         graph = sized_graph[0]
         edges = sized_graph[1]
+        bidirectional = issubclass(graph_type, BidirectionalGraph)
 
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
@@ -246,8 +248,9 @@ class TestBidirectional:
                 graph.remove_edge(neighbor.source, neighbor.destination)
 
                 assert neighbor not in graph.get_neighbors(node)
-                if type(graph) is AdjacencyGraph:
-                    assert node not in graph.get_neighbors(neighbor)
+                if bidirectional:
+                    assert \
+                        node not in graph.get_neighbors(neighbor.destination)
 
         assert len(set(graph.edges())) == 0
 
