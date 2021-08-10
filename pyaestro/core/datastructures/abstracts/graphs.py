@@ -2,11 +2,10 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from hashlib import md5
 import json
 import jsonschema
 from os.path import abspath, dirname, join
-from typing import Dict, Hashable, Iterable, Tuple, Type
+from typing import Dict, Hashable, Iterable, Type
 
 from pyaestro.bases import Specifiable
 from pyaestro.typing import Comparable
@@ -121,7 +120,9 @@ class Graph(Specifiable, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def add_edge(self, a: Hashable, b: Hashable, weight: Comparable=0) -> None:
+    def add_edge(
+        self, a: Hashable, b: Hashable, weight: Comparable = 0
+    ) -> None:
         """Add an edge to the graph.
 
         Args:

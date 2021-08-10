@@ -1,7 +1,7 @@
 import functools
 from typing import Dict, Hashable, Type
 
-from ..abstracts.graphs import Edge, Graph
+from pyaestro.core.datastructures.abstracts.graphs import Graph
 from .algorithms import detect_cycles
 from pyaestro.typing import Comparable
 
@@ -19,7 +19,9 @@ class AcyclicGraph(Graph):
         return cycle_check_wrapper
 
     @_cycle_check
-    def add_edge(self, a: Hashable, b: Hashable) -> None:
+    def add_edge(
+        self, a: Hashable, b: Hashable, weight: Comparable = 0
+    ) -> None:
         super().add_edge(a, b)
 
     @_cycle_check

@@ -1,4 +1,4 @@
-from typing import Hashable, Iterable, Tuple
+from typing import Hashable, Iterable
 
 from pyaestro.typing import Comparable
 from . import AcyclicGraph
