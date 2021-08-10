@@ -4,7 +4,7 @@ from abc import abstractmethod
 from typing_extensions import Protocol, TypeVar
 
 
-class ComparableInterface:
+class ComparableInterface(Protocol):
     """A class that defines a comparability interface."""
     @abstractmethod
     def __lt__(self: Comparable, other: Comparable) -> bool:
