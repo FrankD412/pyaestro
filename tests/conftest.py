@@ -4,44 +4,7 @@ import random
 from .helpers.utils import generate_unique_upper_names
 from pyaestro.core.datastructures.abstracts import BidirectionalGraph
 
-@pytest.fixture(scope="session")
-def linear_graph():
-    return {
-        "edges": {
-            "A": [["B", 0]],
-            "B": [["C", 0]],
-            "C": [["D", 0]],
-            "D": [["E", 0]],
-            "E": [],
-        },
-        "vertices": {
-            "A": None,
-            "B": None,
-            "C": None,
-            "D": None,
-            "E": None,
-        },
-    }
-
-
-@pytest.fixture(scope="session")
-def diamond_graph():
-    return {
-        "edges": {
-            "A": [("B", 0)],
-            "B": [("C", 0), ("D", 0)],
-            "C": [("E", 0)],
-            "D": [("E", 0)],
-            "E": [],
-        },
-        "vertices": {
-            "A": None,
-            "B": None,
-            "C": None,
-            "D": None,
-            "E": None,
-        },
-    }
+MAX_WEIGHT = 1000
 
 
 @pytest.fixture(scope="module",
@@ -73,7 +36,7 @@ def valid_specification(graph_type, weighted, sized_node_list):
             if neighbor in _edges[node]:
                 continue
 
-            weight = random.randint(0, 1000) if weighted else 0
+            weight = random.randint(0, MAX_WEIGHT) if weighted else 0
             _edges[node][neighbor] = weight
 
             if bidirectional:
@@ -94,15 +57,16 @@ def sized_node_list(request):
 
 @pytest.fixture(scope="function",
                 params=[1, 2, 4, 7, 8, 16, 32])
-def sized_graph(request, graph_type):
+def sized_graph(request, graph_type, weighted):
     graph = graph_type()
+    bidirectional = issubclass(graph_type, BidirectionalGraph)
     edges = {}
     nodes = list(generate_unique_upper_names(request.param))
     print(nodes)
 
     for node in nodes:
         graph[node] = None
-        edges[node] = set()
+        edges[node] = {}
 
     for node in nodes:
         neighbors = random.choices(
@@ -110,9 +74,20 @@ def sized_graph(request, graph_type):
         )
 
         for neighbor in neighbors:
-            graph.add_edge(node, neighbor)
-            edges[node].add((neighbor, 0))
-            edges[neighbor].add((node, 0))
+            if neighbor in edges[node]:
+                continue
 
-    print(edges)
-    return graph, edges
+            weight = random.randint(0, MAX_WEIGHT) if weighted else 0
+            graph.add_edge(node, neighbor, weight)
+            edges[node][neighbor] = weight
+            
+            if bidirectional:
+                edges[neighbor][node] = weight
+
+    _edges = {}
+    for node, neighbors in edges.items():
+        _edges[node] = \
+            set([(key, weight) for key, weight in edges[node].items()])
+
+    print(_edges)
+    return graph, _edges
