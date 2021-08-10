@@ -1,9 +1,9 @@
 from typing import Hashable, Iterable
 
 from pyaestro.typing import Comparable
-from . import AcyclicGraph
-from ..abstracts import Graph, BidirectionalGraph
-from . import Edge
+from pyaestro.core.datastructures.abstracts import \
+    BidirectionalGraph, Edge, Graph
+from pyaestro.core.datastructures.graphs import AcyclicGraph
 
 
 class AdjacencyGraph(Graph):
