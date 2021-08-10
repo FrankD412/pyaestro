@@ -8,7 +8,7 @@ class ComparableInterface:
     """A class that defines a comparability interface."""
     @abstractmethod
     def __lt__(self: Comparable, other: Comparable) -> bool:
-        ...
+        raise NotImplementedError()
 
 
 Comparable = TypeVar("Comparable", bound=ComparableInterface)
