@@ -3,6 +3,7 @@ from typing import Hashable, Iterable, Tuple
 from pyaestro.core.datastructures.abstracts import Graph
 from pyaestro.typing import Comparable
 
+
 class ConcreteAbstractGraph(Graph):
     def _delete_edges(self, key: Hashable) -> None:
         pass
@@ -10,7 +11,9 @@ class ConcreteAbstractGraph(Graph):
     def edges(self) -> Iterable[Tuple[Hashable]]:
         pass
 
-    def add_edge(self, a: Hashable, b: Hashable, weight: Comparable=0) -> None:
+    def add_edge(
+        self, a: Hashable, b: Hashable, weight: Comparable = 0
+    ) -> None:
         pass
 
     def remove_edge(self, a: Hashable, b: Hashable) -> None:
