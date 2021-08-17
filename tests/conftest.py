@@ -80,7 +80,7 @@ def sized_graph(request, graph_type, weighted):
             weight = random.randint(0, MAX_WEIGHT) if weighted else 0
             graph.add_edge(node, neighbor, weight)
             edges[node][neighbor] = weight
-            
+
             if bidirectional:
                 edges[neighbor][node] = weight
 
