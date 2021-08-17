@@ -1,6 +1,4 @@
 import pytest
-from jsonschema import ValidationError
-import random
 
 from pyaestro.core.datastructures.abstracts import Graph
 
