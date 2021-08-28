@@ -1,6 +1,6 @@
 import pytest
 
-from pyaestro.core.datastructures.abstracts import Graph
+from pyaestro.structures.abstracts import Graph
 
 
 class TestAbstractGraph:

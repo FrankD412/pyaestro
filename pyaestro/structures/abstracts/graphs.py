@@ -14,7 +14,7 @@ SCHEMA_DIR = join(dirname(abspath(__file__)), "_schemas")
 
 
 @dataclass
-class Edge:
+class GraphEdge:
     source: str
     destination: str
     value: Comparable = 0
@@ -22,7 +22,7 @@ class Edge:
     def __hash__(self):
         return hash(f"{self.source}{self.destination}")
 
-    def __lt__(self, other: Edge):
+    def __lt__(self, other: GraphEdge):
         if self.value < other.value:
             return True
         return False
@@ -111,11 +111,11 @@ class Graph(Specifiable, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def edges(self) -> Iterable[Edge]:
+    def edges(self) -> Iterable[GraphEdge]:
         """Iterate the edges of a graph.
 
         Returns:
-            Iterable[Tuple[Hashable]]: An iterable of tuples containing edges.
+            Iterable[GraphEdge]: An iterable of tuples containing edges.
         """
         raise NotImplementedError
 
@@ -152,7 +152,7 @@ class Graph(Specifiable, ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_neighbors(self, key: Hashable) -> Iterable[Edge]:
+    def get_neighbors(self, key: Hashable) -> Iterable[GraphEdge]:
         """Get the connected neighbors of the specified node.
 
         Args:
@@ -162,8 +162,8 @@ class Graph(Specifiable, ABC):
             KeyError: Raised when 'key' does not exist in the graph.
 
         Returns:
-            Iterable[Edge]: An iterable of Edge records that represent the
-            neighbors of the vertex named 'key'.
+            Iterable[GraphEdge]: An iterable of GraphEdge records that
+            represent the neighbors of the vertex named 'key'.
         """
         raise NotImplementedError
 

@@ -2,7 +2,7 @@ import pytest
 import random
 
 from .helpers.utils import generate_unique_upper_names
-from pyaestro.core.datastructures.abstracts import BidirectionalGraph
+from pyaestro.structures.abstracts import BidirectionalGraph
 
 MAX_WEIGHT = 1000
 

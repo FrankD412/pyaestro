@@ -1,6 +1,6 @@
 from typing import Hashable, Iterable, Tuple
 
-from pyaestro.core.datastructures.abstracts import Graph
+from pyaestro.structures.abstracts import Graph
 from pyaestro.typing import Comparable
 
 

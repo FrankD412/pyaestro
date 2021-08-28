@@ -10,7 +10,7 @@ from subprocess import Popen
 from uuid import uuid4
 
 from pyaestro.metaclasses import Singleton, SynchronizedClass
-from pyaestro.core.dataclasses.utilities import MultiRdrWtrDict
+from pyaestro.dataclasses.utilities import MultiRdrWtrDict
 
 
 class ExecTaskState(Enum):
