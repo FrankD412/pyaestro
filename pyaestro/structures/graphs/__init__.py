@@ -1,7 +1,7 @@
 import functools
 from typing import Dict, Hashable, Type
 
-from pyaestro.core.datastructures.abstracts.graphs import Graph
+from pyaestro.structures.abstracts.graphs import Graph
 from .algorithms import detect_cycles
 from pyaestro.typing import Comparable
 

@@ -4,15 +4,37 @@ from math import ceil
 from random import randint, shuffle
 from typing import Dict, List, TypeVar, Type
 
-from pyaestro.core.datastructures.abstracts import \
-    BidirectionalGraph, Edge, Graph
-from pyaestro.core.datastructures.graphs.adjacency import \
+from pyaestro.structures.abstracts import \
+    BidirectionalGraph, GraphEdge, Graph
+from pyaestro.structures.graphs.adjacency import \
     AdjacencyGraph, BidirectionalAdjGraph
 from tests.core.datastructures.graphs import ConcreteAbstractGraph
 import tests.helpers.utils as utils
 
 GRAPHS = (ConcreteAbstractGraph, AdjacencyGraph, BidirectionalAdjGraph)
 G_TYPE = TypeVar('Graph', bound=Graph)
+
+
+# TODO: Comment each test with more details.
+
+class TestGraphEdge:
+    def test_init(self):
+        """Tests the initialization of a new Edge instance.
+        """
+
+        # Unweighted cases
+        a = GraphEdge("A", "B", 0)
+        b = GraphEdge("A", "B")
+        c = GraphEdge("A", "A")
+        d = GraphEdge(None, None)
+
+        # Default value/set value should be 0
+        assert a.value == 0
+        assert b.value == 0
+        assert c.value == 0
+        assert d.value == 0
+
+        assert hash(a) == hash(b)
 
 
 @pytest.mark.parametrize("graph_type", GRAPHS)
@@ -338,9 +360,9 @@ class TestFullGraphs:
 
         for vertex, neighbors in valid_specification["edges"].items():
             for neighbor, weight in neighbors:
-                edges.add(Edge(vertex, neighbor, weight))
+                edges.add(GraphEdge(vertex, neighbor, weight))
                 if bidirectional:
-                    edges.add(Edge(neighbor, vertex, weight))
+                    edges.add(GraphEdge(neighbor, vertex, weight))
                 graph.add_edge(vertex, neighbor, weight)
 
         diff = set(graph.edges()) - edges
@@ -395,7 +417,8 @@ class TestFullGraphs:
         for node in graph:
             neighbors = set(graph.get_neighbors(node))
             edge_set = \
-                set([Edge(node, dst, weight) for dst, weight in edges[node]])
+                set([GraphEdge(node, dst, weight)
+                    for dst, weight in edges[node]])
             diff = neighbors - edge_set
             assert len(diff) == 0
 
@@ -443,9 +466,9 @@ class TestFullGraphs:
         edges = set()
         for node, edge_set in sized_graph[1].items():
             for e in edge_set:
-                edges.add(Edge(node, e[0], e[1]))
+                edges.add(GraphEdge(node, e[0], e[1]))
                 if bidirectional:
-                    edges.add(Edge(e[0], node, e[1]))
+                    edges.add(GraphEdge(e[0], node, e[1]))
 
         diff = set(graph.edges()) - set(edges)
         assert len(diff) == 0

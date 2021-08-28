@@ -1,9 +1,9 @@
 from typing import Hashable, Iterable
 
 from pyaestro.typing import Comparable
-from pyaestro.core.datastructures.abstracts import \
-    BidirectionalGraph, Edge, Graph
-from pyaestro.core.datastructures.graphs import AcyclicGraph
+from pyaestro.structures.abstracts import \
+    BidirectionalGraph, GraphEdge, Graph
+from pyaestro.structures.graphs import AcyclicGraph
 
 
 class AdjacencyGraph(Graph):
@@ -24,15 +24,15 @@ class AdjacencyGraph(Graph):
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
-    def edges(self) -> Iterable[Edge]:
+    def edges(self) -> Iterable[GraphEdge]:
         for src, adj_list in self._adj_table.items():
             for dest, weight in adj_list.items():
-                yield Edge(src, dest, weight)
+                yield GraphEdge(src, dest, weight)
 
-    def get_neighbors(self, node: Hashable) -> Iterable[Edge]:
+    def get_neighbors(self, node: Hashable) -> Iterable[GraphEdge]:
         try:
             for dest, weight in self._adj_table[node].items():
-                yield Edge(node, dest, weight)
+                yield GraphEdge(node, dest, weight)
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
