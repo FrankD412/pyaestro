@@ -5,12 +5,13 @@ from math import ceil
 from random import randint, shuffle
 from typing import Dict, List, TypeVar, Type
 
+from pyaestro.dataclasses import GraphEdge
 from pyaestro.structures.abstracts import \
-    BidirectionalGraph, GraphEdge, Graph
+    BidirectionalGraph, Graph
 from pyaestro.structures.graphs.adjacency import \
     AdjacencyGraph, BidirectionalAdjGraph
 from tests.core.datastructures.graphs import ConcreteAbstractGraph
-import tests.helpers.utils as utils
+from tests.helpers.utils import generate_unique_lower_names
 
 GRAPHS = (ConcreteAbstractGraph, AdjacencyGraph, BidirectionalAdjGraph)
 G_TYPE = TypeVar('Graph', bound=Graph)
@@ -316,7 +317,7 @@ class TestBaseGraphInterface:
         for node in sized_node_list:
             graph[node] = None
 
-        missing = utils.generate_unique_lower_names(len(sized_node_list))
+        missing = generate_unique_lower_names(len(sized_node_list))
         for node in missing:
             with pytest.raises(KeyError) as excinfo:
                 graph[node]
@@ -367,7 +368,7 @@ class TestBaseGraphInterface:
         """
         graph = sized_graph[0]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        missing_nodes = list(generate_unique_lower_names(num_missing))
         values = {}
 
         for node in missing_nodes:
@@ -560,7 +561,7 @@ class TestFullGraphs:
         """
         graph = sized_graph[0]
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        missing_nodes = list(generate_unique_lower_names(num_missing))
         len_edges = len(list(graph.edges()))
 
         for key in missing_nodes:
@@ -625,7 +626,7 @@ class TestFullGraphs:
         bidirectional = issubclass(graph_type, BidirectionalGraph)
 
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
-        missing_nodes = list(utils.generate_unique_lower_names(num_missing))
+        missing_nodes = list(generate_unique_lower_names(num_missing))
         len_edges = len(list(graph.edges()))
 
         for node in edges.keys():

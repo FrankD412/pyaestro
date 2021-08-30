@@ -1,8 +1,9 @@
 from typing import Hashable, Iterable
 
+from pyaestro.dataclasses import GraphEdge
 from pyaestro.typing import Comparable
 from pyaestro.structures.abstracts import \
-    BidirectionalGraph, GraphEdge, Graph
+    BidirectionalGraph, Graph
 from pyaestro.structures.graphs import AcyclicGraph
 
 
