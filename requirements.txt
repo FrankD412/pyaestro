@@ -11,3 +11,5 @@ pydocstyle
 # Required packages
 coloredlogs
 psutil
+jsonschema
+typing-extensions
