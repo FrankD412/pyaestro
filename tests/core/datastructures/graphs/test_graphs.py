@@ -1,3 +1,4 @@
+from itertools import product
 from jsonschema import ValidationError
 import pytest
 from math import ceil
@@ -18,10 +19,9 @@ G_TYPE = TypeVar('Graph', bound=Graph)
 # TODO: Comment each test with more details.
 
 class TestGraphEdge:
-    def test_init(self):
+    def test_init(self) -> None:
         """Tests the initialization of a new Edge instance.
         """
-
         # Unweighted cases
         a = GraphEdge("A", "B", 0)
         b = GraphEdge("A", "B")
@@ -34,7 +34,55 @@ class TestGraphEdge:
         assert c.value == 0
         assert d.value == 0
 
-        assert hash(a) == hash(b)
+        # Weighted Edges
+        a = GraphEdge("A", "B", 0)
+        b = GraphEdge("A", "B", 1)
+        c = GraphEdge("A", "A", 2)
+        d = GraphEdge(None, None, 3)
+
+        # Check weights
+        assert a.value == 0
+        assert b.value == 1
+        assert c.value == 2
+        assert d.value == 3
+
+    def test_hash(self) -> None:
+        """Tests that the hashing for an edge functions.
+
+        Test passes if edges match in hash that have the same source and
+        destination. Hashes should not be influenced by an edge's weight.
+        """
+        a1 = GraphEdge("A", "B", 0)
+        b1 = GraphEdge("A", "B")
+        c1 = GraphEdge("A", "A")
+        d1 = GraphEdge(None, None)
+
+        a2 = GraphEdge("A", "B", 1)
+        b2 = GraphEdge("A", "B", 2)
+        c2 = GraphEdge("A", "A", 3)
+        d2 = GraphEdge(None, None, 4)
+
+        assert hash(a1) == hash(a2)
+        assert hash(a1) == hash(b1)
+        assert hash(a1) == hash(b2)
+        assert hash(b1) == hash(b2)
+        assert hash(c1) == hash(c2)
+        assert hash(a1) != hash(c1)
+        assert hash(d1) == hash(d2)
+        assert hash(d1) != hash(c1)
+
+    def test_sort(self, sized_node_list: List[str]) -> None:
+        """Tests the sort functionality on weighted and unweighted edges.
+        """
+        edges = [
+            GraphEdge(p[0], p[1], weight)
+            for weight, p in enumerate(product(sized_node_list, repeat=2))
+        ]
+        shuffle(edges)
+        edges.sort(reverse=False)
+
+        for i in range(len(edges)):
+            assert i == edges[i].value
 
 
 @pytest.mark.parametrize("graph_type", GRAPHS)
