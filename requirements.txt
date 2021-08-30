@@ -13,3 +13,6 @@ coloredlogs
 psutil
 jsonschema
 typing-extensions
+
+# Install package
+.
