@@ -1,5 +1,6 @@
+from math import ceil, sqrt
 import pytest
-import random
+from random import choices, randint
 
 from .helpers.utils import generate_unique_upper_names
 from pyaestro.structures.abstracts import BidirectionalGraph
@@ -31,12 +32,12 @@ def valid_specification(graph_type, weighted, sized_node_list):
         _edges[node] = {}
 
     for node in nodes:
-        neighbors = random.choices(nodes, k=random.randint(1, len(nodes)))
+        neighbors = choices(nodes, k=randint(1, ceil(sqrt(len(nodes)))))
         for neighbor in neighbors:
             if neighbor in _edges[node]:
                 continue
 
-            weight = random.randint(0, MAX_WEIGHT) if weighted else 0
+            weight = randint(0, MAX_WEIGHT) if weighted else 0
             _edges[node][neighbor] = weight
 
             if bidirectional:
@@ -69,15 +70,15 @@ def sized_graph(request, graph_type, weighted):
         edges[node] = {}
 
     for node in nodes:
-        neighbors = random.choices(
-            nodes, k=random.randint(1, len(nodes))
+        neighbors = choices(
+            nodes, k=randint(1, len(nodes))
         )
 
         for neighbor in neighbors:
             if neighbor in edges[node]:
                 continue
 
-            weight = random.randint(0, MAX_WEIGHT) if weighted else 0
+            weight = randint(0, MAX_WEIGHT) if weighted else 0
             graph.add_edge(node, neighbor, weight)
             edges[node][neighbor] = weight
 
