@@ -15,22 +15,15 @@ psutil = "^5.8.0"
 jsonschema = "*"
 typing-extensions = "^3.10.0"
 
-
-
 [tool.poetry.dev-dependencies]
 fabric = "*"
 coverage = "*"
-sphinx_rtd_theme = "*"
-sphinx = "*"
 flake8 = "*"
 pydocstyle = "*"
 pylint = "*"
-tox = "*"
 pytest = "*"
 pytest-cov = "*"
 pre-commit = "*"
-tox-travis = "*"
-tox-pyenv = "*"
 autopep8 = "^1.5.7"
 
 [build-system]
