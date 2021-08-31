@@ -9,7 +9,7 @@ license = "MIT"
 include = ["pyaestro/core/datastructures/_schemas/graph.json"]
 
 [tool.poetry.dependencies]
-python = ">=3.6"
+python = ">=3.7"
 coloredlogs = "*"
 psutil = "^5.8.0"
 jsonschema = "*"
