@@ -16,6 +16,7 @@ def load_readme():
 
     return long_description
 
+
 setup(
   name='pyaestro',
   description='A package of utilities structures for building workflows'

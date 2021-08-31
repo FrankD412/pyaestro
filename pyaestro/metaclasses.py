@@ -12,17 +12,18 @@ class Singleton(type):
     Implementation pulled from StackOverflow
     https://stackoverflow.com/questions/6760685/creating-a-singleton-in-python
     """
+
     _instances = {}
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = \
-                super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = super(Singleton, cls).__call__(
+                *args, **kwargs
+            )
         return cls._instances[cls]
 
 
 class SynchronizedClass(type):
-
     def __new__(cls, name, bases, namespace, **kwargs):
 
         sync_cls = super().__new__(cls, name, bases, namespace)
@@ -38,10 +39,7 @@ class SynchronizedClass(type):
 
         for method in inspect.getmembers(sync_cls, inspect.isroutine):
             sync = cls.synchronize(lock)
-            setattr(
-                sync_cls, method[0],
-                sync(getattr(sync_cls, method[0]))
-            )
+            setattr(sync_cls, method[0], sync(getattr(sync_cls, method[0])))
 
         return sync_cls
 
@@ -52,5 +50,7 @@ class SynchronizedClass(type):
             def _wrapper(*args, **kwargs):
                 with lock:
                     return func(*args, **kwargs)
+
             return _wrapper
+
         return _synchronize

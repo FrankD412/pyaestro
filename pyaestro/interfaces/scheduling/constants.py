@@ -1,13 +1,14 @@
-"""High-level enumerations for the pyaestro package."""
+from enum import Enum
 
 
-class EventCode(Enum):
+class SubmissionCode(Enum):
     SUCCESS = 0
     FAILURE = 1
 
 
 class TaskState(Enum):
     """An enumeration for task state."""
+
     BLOCKED = 0
     PENDING = 1
     WAITING = 2
@@ -19,3 +20,4 @@ class TaskState(Enum):
     TIMEDOUT = 8
     UNKNOWN = 9
     CANCELLED = 10
+    SUSPENDED = 11

@@ -3,15 +3,16 @@ from dataclasses import dataclass
 from datetime import datetime
 from collections import defaultdict
 
-from pyaestro.abstracts.scheduling import TaskState
+from ..interfaces.scheduling.constants import TaskState
 
 
 @dataclass
 class TaskRecord:
     """A class to track a tasks state and record timing information"""
+
     name: str
     base_name: str
-    combination: str
+    combination: list
 
     time_ledger: defaultdict(datetime.now)
     cur_state: TaskState

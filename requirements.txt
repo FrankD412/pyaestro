@@ -8,6 +8,15 @@ flake8
 pylint
 pydocstyle
 
+# Unit testing
+pytest
+pytest-cov
+
 # Required packages
 coloredlogs
 psutil
+jsonschema
+typing-extensions
+
+# Install package
+.
