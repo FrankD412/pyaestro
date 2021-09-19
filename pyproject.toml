@@ -9,22 +9,20 @@ license = "MIT"
 include = ["pyaestro/core/datastructures/_schemas/graph.json"]
 
 [tool.poetry.dependencies]
-python = ">=3.7"
-coloredlogs = "*"
+python = ">=3.7,<4"
+coloredlogs = "^15.0.1"
 psutil = "^5.8.0"
-jsonschema = "*"
+jsonschema = "^3.2.0"
 typing-extensions = "^3.10.0"
 
 [tool.poetry.dev-dependencies]
-fabric = "*"
-coverage = "*"
-flake8 = "*"
-pydocstyle = "*"
-pylint = "*"
-pytest = "*"
-pytest-cov = "*"
-pre-commit = "*"
-autopep8 = "^1.5.7"
+flake8 = "^3.9.2"
+coverage = "^5.5"
+pydocstyle = "^6.1.1"
+pytest = "^6.2.5"
+pre-commit = "^2.15.0"
+pytest-cov = "^2.12.1"
+
 
 [build-system]
 requires = ["poetry>=0.12"]
