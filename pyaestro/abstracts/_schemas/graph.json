@@ -1,0 +1,24 @@
+{
+    "description": "Dictionary describing a graph",
+    "required": ["edges", "vertices"],
+    "properties": {
+        "edges": {
+            "description": "Dictionary of source and neighbors",
+            "type": "object",
+            "items": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "vertices": {
+            "description": "A dictionary of vertice keys to objects.",
+            "type": "object"
+        }
+    },
+    "dependencies": {
+        "edges": ["vertices"],
+        "vertices": ["edges"]
+    }
+}
