@@ -1,12 +1,11 @@
 import pytest
 
-from pyaestro.structures.abstracts import Graph
+from pyaestro.abstracts.graphs import Graph
 
 
 class TestAbstractGraph:
     def test_abstract_instance(self):
-        """Tests that the base Graph class cannot be instantiated (abstract).
-        """
+        """Tests that Graph class cannot be instantiated (abstract)."""
         with pytest.raises(TypeError) as excinfo:
             Graph()
 

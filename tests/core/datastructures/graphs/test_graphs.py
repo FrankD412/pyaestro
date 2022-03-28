@@ -3,26 +3,23 @@ from jsonschema import ValidationError
 import pytest
 from math import ceil
 from random import randint, shuffle
-from typing import Dict, List, TypeVar, Type
+from typing import Dict, List, Type
 
 from pyaestro.dataclasses import GraphEdge
-from pyaestro.structures.abstracts import \
-    BidirectionalGraph, Graph
-from pyaestro.structures.graphs.adjacency import \
-    AdjacencyGraph, BidirectionalAdjGraph
+from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
+from pyaestro.structures.graphs import AdjacencyGraph, BidirectionalAdjGraph
 from tests.core.datastructures.graphs import ConcreteAbstractGraph
 from tests.helpers.utils import generate_unique_lower_names
 
 GRAPHS = (ConcreteAbstractGraph, AdjacencyGraph, BidirectionalAdjGraph)
-G_TYPE = TypeVar('Graph', bound=Graph)
 
 
 # TODO: Comment each test with more details.
 
+
 class TestGraphEdge:
     def test_init(self) -> None:
-        """Tests the initialization of a new Edge instance.
-        """
+        """Tests the initialization of a new Edge instance."""
         # Unweighted cases
         a = GraphEdge("A", "B", 0)
         b = GraphEdge("A", "B")
@@ -73,8 +70,7 @@ class TestGraphEdge:
         assert hash(d1) != hash(c1)
 
     def test_sort(self, sized_node_list: List[str]) -> None:
-        """Tests the sort functionality on weighted and unweighted edges.
-        """
+        """Tests the sort functionality on weighted and unweighted edges."""
         edges = [
             GraphEdge(p[0], p[1], weight)
             for weight, p in enumerate(product(sized_node_list, repeat=2))
@@ -89,7 +85,7 @@ class TestGraphEdge:
 @pytest.mark.parametrize("graph_type", GRAPHS)
 @pytest.mark.parametrize("weighted", [True, False])
 class TestBaseGraphInterface:
-    def test_repr(self, graph_type: Type[G_TYPE], weighted: bool) -> None:
+    def test_repr(self, graph_type: Type[Graph], weighted: bool) -> None:
         """Tests the reproducer (repr) method for Graph classes.
 
         Passing condition is that a graph's reproducer should always return
@@ -103,8 +99,10 @@ class TestBaseGraphInterface:
         assert str(graph) == f"{graph_type.__name__}()"
 
     def test_malformed_spec_validation(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        malformed_specification: Dict
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        malformed_specification: Dict,
     ) -> None:
         """Tests that a Graph class catches malformed specifications.
 
@@ -122,8 +120,10 @@ class TestBaseGraphInterface:
         assert "required property" in str(excinfo)
 
     def test_contains(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_node_list: List[str]
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        sized_node_list: List[str],
     ) -> None:
         """Tests that "in" (__contains__) asserts properly.
 
@@ -145,8 +145,10 @@ class TestBaseGraphInterface:
             assert node in graph
 
     def test_valid_spec_validation(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        valid_specification: Dict
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        valid_specification: Dict,
     ) -> None:
         """Tests that a Graph class catches malformed specifications.
 
@@ -161,13 +163,17 @@ class TestBaseGraphInterface:
         try:
             graph_type.from_specification(valid_specification)
         except Exception as exception:
-            msg = f"'{graph_type.__name__}.from_specification' raised an " \
+            msg = (
+                f"'{graph_type.__name__}.from_specification' raised an "
                 f"exception. Error: {str(exception)}"
+            )
             pytest.fail(msg)
 
     def test_delitem(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_node_list: List[str]
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        sized_node_list: List[str],
     ) -> None:
         """Tests the removal of a node from a graph.
 
@@ -193,8 +199,10 @@ class TestBaseGraphInterface:
             assert value not in graph
 
     def test_len(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_node_list: List[str]
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        sized_node_list: List[str],
     ) -> None:
         """Tests the length reported by a graph.
 
@@ -214,7 +222,7 @@ class TestBaseGraphInterface:
         assert len(sized_node_list) == len(graph)
 
     def test_del_missing(
-        self, graph_type: Type[G_TYPE], weighted: bool
+        self, graph_type: Type[Graph], weighted: bool
     ) -> None:
         """Tests the removal of a missing key from a graph.
 
@@ -230,13 +238,15 @@ class TestBaseGraphInterface:
         assert len(graph._vertices) == 0
 
         with pytest.raises(KeyError) as excinfo:
-            del graph['missing']
+            del graph["missing"]
 
         assert "not found in graph" in str(excinfo)
 
     def test_iter(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_node_list: List[str]
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        sized_node_list: List[str],
     ) -> None:
         """Tests the iteration over the nodes in a graph.
 
@@ -265,8 +275,10 @@ class TestBaseGraphInterface:
         assert sorted(values) == sorted(sized_node_list)
 
     def test_getitem(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_node_list: List[str]
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        sized_node_list: List[str],
     ) -> None:
         """Tests the indexing [] notation for a graph.
 
@@ -291,8 +303,10 @@ class TestBaseGraphInterface:
             assert graph[node] == values[node]
 
     def test_getitem_missing(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_node_list: List[str]
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        sized_node_list: List[str],
     ) -> None:
         """Tests the indexing [] notation for a graph.
 
@@ -310,7 +324,7 @@ class TestBaseGraphInterface:
         assert len(graph._vertices) == 0
 
         with pytest.raises(KeyError) as excinfo:
-            graph['missing']
+            graph["missing"]
 
         assert "not found in graph" in str(excinfo)
 
@@ -325,8 +339,7 @@ class TestBaseGraphInterface:
             assert "not found in graph" in str(excinfo)
 
     def test__setitem__(
-            self, graph_type: Type[G_TYPE], weighted: bool,
-            sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests that items can be set using the indexing [] notation.
 
@@ -353,8 +366,7 @@ class TestBaseGraphInterface:
             assert graph[key] == values[key]
 
     def test__setitem__missing(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests that a graph adds an element when missing.
 
@@ -385,10 +397,11 @@ class TestBaseGraphInterface:
 @pytest.mark.parametrize("graph_type", (AdjacencyGraph, BidirectionalAdjGraph))
 @pytest.mark.parametrize("weighted", [True, False])
 class TestFullGraphs:
-
     def test_add_edge(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        valid_specification: Dict
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        valid_specification: Dict,
     ) -> None:
         """Tests the addition of edges to a graph.
 
@@ -418,7 +431,7 @@ class TestFullGraphs:
         assert len(diff) == 0
 
     def test_add_edge_invalid(
-        self, graph_type: Type[G_TYPE], weighted: bool
+        self, graph_type: Type[Graph], weighted: bool
     ) -> None:
         """Tests the addition of edges between non-existent nodes.
 
@@ -447,8 +460,7 @@ class TestFullGraphs:
         assert "'invalid' not found in graph" in str(excinfo)
 
     def test_get_neighbors(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests neighbor retrieval from a graph instance.
 
@@ -465,15 +477,14 @@ class TestFullGraphs:
 
         for node in graph:
             neighbors = set(graph.get_neighbors(node))
-            edge_set = \
-                set([GraphEdge(node, dst, weight)
-                    for dst, weight in edges[node]])
+            edge_set = set(
+                [GraphEdge(node, dst, weight) for dst, weight in edges[node]]
+            )
             diff = neighbors - edge_set
             assert len(diff) == 0
 
     def test_get_neighbors_invalid(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests exception handling for get_neighbors for invalid nodes.
 
@@ -496,8 +507,7 @@ class TestFullGraphs:
                     continue
 
     def test_edges(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests that edge retrieval functions against a reference edge set.
 
@@ -523,8 +533,7 @@ class TestFullGraphs:
         assert len(diff) == 0
 
     def test_delete_neighbors(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests exception handling for get_neighbors for invalid nodes.
 
@@ -546,8 +555,7 @@ class TestFullGraphs:
         assert len(set(graph.edges())) == 0
 
     def test_delete_neighbors_missing(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests exception handling for get_neighbors for invalid nodes.
 
@@ -571,8 +579,7 @@ class TestFullGraphs:
         assert len(list(graph.edges())) == len_edges
 
     def test_remove_edge(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests edge removal per node and per edge.
 
@@ -599,14 +606,14 @@ class TestFullGraphs:
 
                 assert neighbor not in graph.get_neighbors(node)
                 if bidirectional:
-                    assert \
-                        node not in graph.get_neighbors(neighbor.destination)
+                    assert node not in graph.get_neighbors(
+                        neighbor.destination
+                    )
 
         assert len(set(graph.edges())) == 0
 
     def test_remove_edge_missing(
-        self, graph_type: Type[G_TYPE], weighted: bool,
-        sized_graph: Graph
+        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
     ) -> None:
         """Tests edge removal per node for invalid edges.
 
