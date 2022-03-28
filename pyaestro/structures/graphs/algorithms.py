@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Hashable, Iterable, List, Set
 
-from ..abstracts import Graph
+from pyaestro.abstracts.graphs import Graph
 
 
 def breadth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:

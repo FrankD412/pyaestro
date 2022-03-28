@@ -1,14 +1,15 @@
-from typing import Hashable, Iterable
+from typing import Dict, Hashable, Iterable
 
 from pyaestro.dataclasses import GraphEdge
 from pyaestro.typing import Comparable
-from pyaestro.structures.abstracts import \
-    BidirectionalGraph, Graph
-from pyaestro.structures.graphs import AcyclicGraph
+from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
+from pyaestro.structures.graphs.algorithms import detect_cycles
+from pyaestro.structures.graphs.utils import cycle_check
 
 
 class AdjacencyGraph(Graph):
     """An adjacency list implementation a directed graph."""
+
     def __init__(self):
         self._adj_table = {}
         super().__init__()
@@ -84,6 +85,24 @@ class BidirectionalAdjGraph(BidirectionalGraph, AdjacencyGraph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
 
-class AcyclicAdjGraph(AcyclicGraph, AdjacencyGraph):
+class AcyclicAdjGraph(AdjacencyGraph):
     """A directed acyclic variant of the AdjacencyGraph data structure."""
-    ...
+
+    @cycle_check(cycle_func=detect_cycles)
+    def add_edge(
+        self, a: Hashable, b: Hashable, weight: Comparable = 0
+    ) -> None:
+        return super().add_edge(a, b, weight)
+
+    @cycle_check(cycle_func=detect_cycles)
+    @classmethod
+    def from_specification(cls, specification: Dict) -> Graph:
+        """Creates an instance of a class from a specification dictionary.
+
+        Args:
+            specification (Dict): A specification describing the new instance.
+
+        Returns:
+            Specifiable: An instance of the Specifiable class.
+        """
+        return super().from_specification(specification)
