@@ -37,3 +37,4 @@ Pipfile.lock
 
 #pycharm
 .idea/
+.python-version
