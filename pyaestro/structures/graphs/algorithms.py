@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Hashable, Iterable, List, Set
+from typing import Hashable, Iterable, Set
 
 from pyaestro.abstracts.graphs import Graph
 
@@ -17,15 +17,17 @@ def breadth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
     visited: Set[Hashable] = set()
     to_visit: deque[Hashable] = deque()
 
-    to_visit.push((source, None))
+    to_visit.append((source, None))
     visited.add(source)
     while to_visit:
         root, parent = to_visit.popleft()
-        for node in graph.get_neighbors(root):
+        for edge in graph.get_neighbors(root):
+            node = edge.destination
+
             if node in visited:
                 continue
 
-            to_visit.push((node, root))
+            to_visit.append((node, root))
             visited.add(node)
 
         yield root, parent
@@ -42,13 +44,15 @@ def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
         Iterable: [description]
     """
     visited: Set[Hashable] = set()
-    to_visit: List[Hashable] = []
+    to_visit: deque[Hashable] = deque()
 
     to_visit.append((source, None))
     visited.add(source)
     while to_visit:
         root, parent = to_visit.pop()
-        for node in graph.get_neighbors(root):
+        for edge in graph.get_neighbors(root):
+            node = edge.destination
+
             if node in visited:
                 continue
 
