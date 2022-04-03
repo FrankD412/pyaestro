@@ -51,6 +51,10 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
     ],
+    package_data={
+        "pyaestro": ["pyaestro/abstracts/_schemas/graph.json"],
+    },
+    include_package_data=True,
     project_urls={
         "Source": "https://github.com/FrankD412/pyaestro",
         "Tracker": "https://github.com/FrankD412/pyaestro/issues",
