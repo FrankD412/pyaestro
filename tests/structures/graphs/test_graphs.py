@@ -8,10 +8,9 @@ from typing import Dict, List, Type
 from pyaestro.dataclasses import GraphEdge
 from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
 from pyaestro.structures.graphs import AdjacencyGraph, BidirectionalAdjGraph
-from tests.core.datastructures.graphs import ConcreteAbstractGraph
 from tests.helpers.utils import generate_unique_lower_names
 
-GRAPHS = (ConcreteAbstractGraph, AdjacencyGraph, BidirectionalAdjGraph)
+GRAPHS = (AdjacencyGraph, BidirectionalAdjGraph)
 
 
 # TODO: Comment each test with more details.

@@ -2,7 +2,7 @@ from math import ceil, sqrt
 import pytest
 from random import choices, randint
 
-from .helpers.utils import generate_unique_upper_names
+from tests.helpers.utils import generate_unique_upper_names
 from pyaestro.abstracts.graphs import BidirectionalGraph
 
 MAX_WEIGHT = 1000
