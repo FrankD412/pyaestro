@@ -3,7 +3,6 @@ from typing import Dict, Hashable, Iterable
 from pyaestro.dataclasses import GraphEdge
 from pyaestro.typing import Comparable
 from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
-from pyaestro.structures.graphs.algorithms import detect_cycles
 from pyaestro.structures.graphs.utils import cycle_check
 
 
@@ -88,13 +87,13 @@ class BidirectionalAdjGraph(BidirectionalGraph, AdjacencyGraph):
 class AcyclicAdjGraph(AdjacencyGraph):
     """A directed acyclic variant of the AdjacencyGraph data structure."""
 
-    @cycle_check(cycle_func=detect_cycles)
+    @cycle_check()
     def add_edge(
         self, a: Hashable, b: Hashable, weight: Comparable = 0
     ) -> None:
         return super().add_edge(a, b, weight)
 
-    @cycle_check(cycle_func=detect_cycles)
+    @cycle_check()
     @classmethod
     def from_specification(cls, specification: Dict) -> Graph:
         """Creates an instance of a class from a specification dictionary.
