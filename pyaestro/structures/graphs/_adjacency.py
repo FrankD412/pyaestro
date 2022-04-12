@@ -7,7 +7,7 @@ from pyaestro.structures.graphs.utils import cycle_check
 
 
 class AdjacencyGraph(Graph):
-    """An adjacency list implementation a directed graph."""
+    """An adjacency list implementation of a directed graph."""
 
     def __init__(self):
         self._adj_table = {}
@@ -36,8 +36,6 @@ class AdjacencyGraph(Graph):
                 yield GraphEdge(node, dest, weight)
         except KeyError as key_error:
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
-
-        """A directed variant of the AdjacencyGraph data structure."""
 
     def add_edge(
         self, a: Hashable, b: Hashable, weight: Comparable = 0
