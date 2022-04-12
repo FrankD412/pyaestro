@@ -33,6 +33,8 @@ setup(
         "psutil",
         "coloredlogs",
         "pydantic",
+        "jsonschema",
+        "typing-extensions; python_version < '3.8'",
     ],
     extras_require={},
     long_description=load_readme(),
