@@ -1,5 +1,11 @@
 from collections import deque
-from typing import Hashable, Iterable, Protocol, Set
+from typing import Hashable, Iterable, Set
+
+# Python 3.7 compatibility
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol
 
 from pyaestro.abstracts.graphs import Graph
 
