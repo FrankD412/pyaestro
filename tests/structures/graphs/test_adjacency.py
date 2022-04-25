@@ -7,7 +7,11 @@ from typing import Dict, List, Type
 
 from pyaestro.dataclasses import GraphEdge
 from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
-from pyaestro.structures.graphs import AdjacencyGraph, BidirectionalAdjGraph
+from pyaestro.structures.graphs import (
+    AcyclicAdjGraph,
+    AdjacencyGraph,
+    BidirectionalAdjGraph,
+)
 from tests.helpers.utils import generate_unique_lower_names
 
 GRAPHS = (AdjacencyGraph, BidirectionalAdjGraph)
@@ -644,3 +648,12 @@ class TestFullGraphs:
                         graph.remove_edge(neighbor, node)
 
         assert len(list(graph.edges())) == len_edges
+
+
+class TestAcyclicGraph:
+    def test_single_node_cycle(self):
+        g = AcyclicAdjGraph()
+        g["A"] = None
+
+        with pytest.raises(Exception):
+            g.add_edge("A", "A")
