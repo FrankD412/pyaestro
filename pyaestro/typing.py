@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from typing_extensions import Protocol
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol
 
 
 class Comparable(Protocol):
