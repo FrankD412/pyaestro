@@ -18,7 +18,7 @@ def cycle_check(
             ret_value = function(*args, **kwargs)
 
             if cycle_checker.detect_cycles(args[0]):
-                raise Exception("Cycle detected")
+                raise RuntimeError("Cycle detected")
 
             return ret_value
 
