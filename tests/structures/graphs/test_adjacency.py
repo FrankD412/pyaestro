@@ -652,8 +652,79 @@ class TestFullGraphs:
 
 class TestAcyclicGraph:
     def test_single_node_cycle(self):
+        """
+        Tests base case of adding a single node cycle for exception.
+
+        This is a base case of a one node cycle that a cycle check should be
+        able to detect.
+
+        Passing condition is that an exception is raise when a self-referencing
+        edge is created on the single node.
+        """
         g = AcyclicAdjGraph()
         g["A"] = None
 
-        with pytest.raises(Exception):
+        with pytest.raises(RuntimeError):
             g.add_edge("A", "A")
+
+    def test_add_nodes(self, sized_node_list: List[str]) -> None:
+        """Tests a long chain of nodes with a cycle from last to first.
+
+        Passing condition is that the chain is created with no cycles.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        g = AcyclicAdjGraph()
+
+        for node in sized_node_list:
+            g[node] = None
+
+    def test_multinode_nocycle(self, sized_node_list: List[str]) -> None:
+        """
+        Tests a multi-node chain to make enforce no cycles.
+
+        A test that simply creates a linear chain with no cycle that will not
+        trigger a cycle exception.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        g = AcyclicAdjGraph()
+
+        if len(sized_node_list) > 1:
+            for i in range(1, len(sized_node_list)):
+                a = sized_node_list[i - 1]
+                b = sized_node_list[i]
+
+                g[a] = None
+                g[b] = None
+
+                g.add_edge(a, b)
+
+    def test_multinode_cycle(self, sized_node_list: List[str]) -> None:
+        """Tests a multi-node chain with a cycle from last node to the first.
+
+        Creates a single chain of nodes and adds an edge from the the end
+        to the start of the chain.
+
+        Passing condition is that an exception is thrown when the last edge is
+        added to the graph, forming a cycle.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        g = AcyclicAdjGraph()
+        if len(sized_node_list) > 1:
+            for i in range(1, len(sized_node_list)):
+                a = sized_node_list[i - 1]
+                b = sized_node_list[i]
+
+                g[a] = None
+                g[b] = None
+
+                g.add_edge(a, b)
+
+            with pytest.raises(RuntimeError):
+                last = len(sized_node_list) - 1
+                g.add_edge(sized_node_list[last], sized_node_list[0])
