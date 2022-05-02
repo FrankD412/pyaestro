@@ -728,3 +728,111 @@ class TestAcyclicGraph:
             with pytest.raises(RuntimeError):
                 last = len(sized_node_list) - 1
                 g.add_edge(sized_node_list[last], sized_node_list[0])
+
+    def test_tree_nocycle(self, sized_node_list: List[str]) -> None:
+        """Tests that a tree can be constructed with no exceptions.
+
+        A tree is a structure that has a strictly mono-directional recursive
+        structure of a parent to child. Constructing a tree from a list of
+        nodes will always fulfill the acyclic property of a DAG (because it is
+        a specialized variant of a DAG).
+
+        Passing condition is that given a linearized node list, construct a
+        tree using basic indices parent-child calculations. This test should
+        not throw an exception throughout the whole construction.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        g = AcyclicAdjGraph()
+        g[sized_node_list[0]] = None
+
+        for i in range(1, len(sized_node_list)):
+            g[sized_node_list[i]] = None
+            parent = int((i - 1) / 2)
+            g.add_edge(sized_node_list[parent], sized_node_list[i])
+
+    def test_tree_nocycle_multiedge(self, sized_node_list: List[str]) -> None:
+        """Tests that nodes can have multiple in-edges without exceptions.
+
+        This test starts with a tree structure, which by principle only has a
+        parent-child relationship with no edges between branches (guaranteed to
+        uphold the acyclic property of an acyclic graph). The test then adds
+        edges to the next node in sequence, creating edges between branches but
+        maintaining the forward progression of levels always pointing to the
+        generation below it (again, upholding acyclic nature as edges are
+        always pointed laterally to the node on the right or the first node
+        of the next generation).
+
+        Pass condition is that this test can complete without exception.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        g = AcyclicAdjGraph()
+        g[sized_node_list[0]] = None
+
+        for i in range(1, len(sized_node_list)):
+            g[sized_node_list[i]] = None
+            parent = int((i - 1) / 2)
+            g.add_edge(sized_node_list[parent], sized_node_list[i])
+
+        for i in range(1, len(sized_node_list) - 1):
+            g.add_edge(sized_node_list[i], sized_node_list[i + 1])
+
+    def test_tree_nocycle_back_edge(self, sized_node_list: List[str]) -> None:
+        """Tests that back edges work without exceptions when no cycles present.
+
+        This test starts with a tree structure, which by principle only has a
+        parent-child relationship with no edges between branches (guaranteed to
+        uphold the acyclic property of an acyclic graph). The test then adds
+        edges to the previous node in sequence, creating edges between branches
+        but violating the forward progression of generations below it. This
+        test guarantees that a cycle will eventually be formed in the layers
+        of the graph.
+
+        Pass condition is that this test raises an exception.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        g = AcyclicAdjGraph()
+        g[sized_node_list[0]] = None
+
+        for i in range(1, len(sized_node_list)):
+            g[sized_node_list[i]] = None
+            parent = int((i - 1) / 2)
+            g.add_edge(sized_node_list[parent], sized_node_list[i])
+
+        with pytest.raises(RuntimeError):
+            for i in reversed(range(0, len(sized_node_list))):
+                parent = max(i - 1, 0)
+                g.add_edge(sized_node_list[i], sized_node_list[parent])
+
+    def test_tree_cycle(self, sized_node_list: List[str]) -> None:
+        """Tests for cycle detection when adding edges to a parent of a child.
+
+        This test constructs a tree which maintains the acyclic property. Once
+        the tree is made, we randomly select a node that is not the root and
+        attempt to add an edge to the root forming a cycle which should be
+        caught and an exception raised.
+
+        Passing condition is that the tree is able to be constructed and that
+        the addition of the last edge from a child to one of its ancestors
+        (any node higher in the tree) will cause an exception.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        g = AcyclicAdjGraph()
+        g[sized_node_list[0]] = None
+
+        for i in range(1, len(sized_node_list)):
+            g[sized_node_list[i]] = None
+            parent = int((i - 1) / 2)
+            g.add_edge(sized_node_list[parent], sized_node_list[i])
+
+        node = randint(0, len(sized_node_list) - 1)
+        parent = max(int((node - 1) / 2), 0)
+        with pytest.raises(RuntimeError):
+            g.add_edge(sized_node_list[node], sized_node_list[parent])
