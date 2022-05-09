@@ -82,7 +82,7 @@ def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
         yield root, parent
 
 
-class DefaultCycleCheck(CycleCheckProtocol):
+class DefaultCycleCheck:
     @classmethod
     def _detect_cycle(
         cls,

@@ -3,7 +3,7 @@ from typing import Dict, Hashable, Iterable
 from pyaestro.dataclasses import GraphEdge
 from pyaestro.typing import Comparable
 from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
-from pyaestro.structures.graphs.utils import cycle_check
+from pyaestro.structures.graphs.utils import cycle_check, cycle_check_on_return
 
 
 class AdjacencyGraph(Graph):
@@ -75,7 +75,7 @@ class BidirectionalAdjGraph(BidirectionalGraph, AdjacencyGraph):
     def delete_edges(self, key: Hashable) -> None:
         try:
             self._adj_table[key].pop(key, None)
-            for neighbor, weight in self._adj_table[key].items():
+            for neighbor, _ in self._adj_table[key].items():
                 del self._adj_table[neighbor][key]
             self._adj_table[key].clear()
         except KeyError as key_error:
@@ -91,8 +91,8 @@ class AcyclicAdjGraph(AdjacencyGraph):
     ) -> None:
         return super().add_edge(a, b, weight)
 
-    @cycle_check()
     @classmethod
+    @cycle_check_on_return()
     def from_specification(cls, specification: Dict) -> Graph:
         """Creates an instance of a class from a specification dictionary.
 
