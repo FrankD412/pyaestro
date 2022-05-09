@@ -780,8 +780,8 @@ class TestAcyclicGraph:
         for i in range(1, len(sized_node_list) - 1):
             g.add_edge(sized_node_list[i], sized_node_list[i + 1])
 
-    def test_tree_nocycle_back_edge(self, sized_node_list: List[str]) -> None:
-        """Tests that back edges work without exceptions when no cycles present.
+    def test_tree_nocycle_side_edge(self, sized_node_list: List[str]) -> None:
+        """Tests that side edges work without exceptions when no cycles present.
 
         This test starts with a tree structure, which by principle only has a
         parent-child relationship with no edges between branches (guaranteed to
@@ -812,9 +812,9 @@ class TestAcyclicGraph:
     def test_tree_cycle(self, sized_node_list: List[str]) -> None:
         """Tests for cycle detection when adding edges to a parent of a child.
 
-        This test constructs a tree which maintains the acyclic property. Once
+        This test constructs a tree which violates the acyclic property. Once
         the tree is made, we randomly select a node that is not the root and
-        attempt to add an edge to the root forming a cycle which should be
+        attempt to add an edge to its parent forming a cycle which should be
         caught and an exception raised.
 
         Passing condition is that the tree is able to be constructed and that
@@ -836,3 +836,45 @@ class TestAcyclicGraph:
         parent = max(int((node - 1) / 2), 0)
         with pytest.raises(RuntimeError):
             g.add_edge(sized_node_list[node], sized_node_list[parent])
+
+    @pytest.mark.parametrize("weighted", [True, False])
+    def test_tree_nocycle_spec(self, valid_acyclic_specification) -> None:
+        """Tests for cycle detection when loading a graph specification.
+
+        This test constructs a tree from a fixed specification that is
+        constructed and guaranteed to be a tree. A tree is selected because
+        there is no chance of a cycle which should trip no exceptions clauses.
+
+        Passing condition is that the tree is able to be constructed without
+        error.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        try:
+            AcyclicAdjGraph.from_specification(valid_acyclic_specification)
+        except RuntimeError as exception:
+            msg = (
+                f"'{AcyclicAdjGraph.__name__}.from_specification' "
+                f"raised an exception. Error: {str(exception)}"
+            )
+            pytest.fail(msg)
+
+    @pytest.mark.parametrize("weighted", [True, False])
+    def test_tree_cycle_spec(self, valid_cyclic_specification) -> None:
+        """Tests for cycle detection when loading a graph specification.
+
+        This test constructs a tree from a fixed specification that is
+        constructed and guaranteed to contain a cycle. The base of the graph
+        described is a tree with side ways edges added from each descendent
+        level to the level about it (at the end of the tree) and therefore
+        forming a cycle.
+
+        Passing condition is that the tree raises an exception when parsing
+        the specification.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        with pytest.raises(RuntimeError):
+            AcyclicAdjGraph.from_specification(valid_cyclic_specification)

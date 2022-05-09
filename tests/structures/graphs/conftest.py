@@ -49,7 +49,7 @@ def valid_specification(graph_type, weighted, sized_node_list):
 
     for node, neighbors in _edges.items():
         spec["edges"][node] = [
-            (dest, weight) for dest, weight in _edges.items()
+            (dest, weight) for dest, weight in neighbors.items()
         ]
 
     return spec
@@ -94,3 +94,66 @@ def sized_graph(request, graph_type, weighted):
 
     print(_edges)
     return graph, _edges
+
+
+@pytest.fixture(scope="function")
+def valid_acyclic_specification(weighted, sized_node_list):
+    spec = {
+        "edges": {},
+        "vertices": {},
+    }
+    nodes = sized_node_list
+    _edges = {}
+
+    for node in nodes:
+        spec["vertices"][node] = None
+        spec["edges"][node] = []
+        _edges[node] = {}
+
+    _nodes = [(i, node) for i, node in enumerate(nodes)]
+    for i, node in reversed(_nodes):
+        if i == 0:
+            break
+        parent = i // 2
+        weight = randint(0, MAX_WEIGHT) if weighted else 0
+        _edges[nodes[parent]][node] = weight
+
+    for node, neighbors in _edges.items():
+        spec["edges"][node] = [
+            (dest, weight) for dest, weight in neighbors.items()
+        ]
+
+    return spec
+
+
+@pytest.fixture(scope="function")
+def valid_cyclic_specification(weighted, sized_node_list):
+    spec = {
+        "edges": {},
+        "vertices": {},
+    }
+    nodes = sized_node_list
+    _edges = {}
+
+    for node in nodes:
+        spec["vertices"][node] = None
+        spec["edges"][node] = []
+        _edges[node] = {}
+
+    _nodes = [(i, node) for i, node in enumerate(nodes)]
+    for i, node in reversed(_nodes):
+        parent = i // 2
+        weight = randint(0, MAX_WEIGHT) if weighted else 0
+        _edges[nodes[parent]][node] = weight
+        if i == 0:
+            break
+
+        weight = randint(0, MAX_WEIGHT) if weighted else 0
+        _edges[node][nodes[max(i - 1, 0)]] = weight
+
+    for node, neighbors in _edges.items():
+        spec["edges"][node] = [
+            (dest, weight) for dest, weight in neighbors.items()
+        ]
+
+    return spec
