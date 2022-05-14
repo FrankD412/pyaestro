@@ -1,9 +1,13 @@
 from typing import Dict, Hashable, Iterable
 
 from pyaestro.dataclasses import GraphEdge
+from pyaestro.structures.graphs.algorithms import (
+    CycleCheckProtocol,
+    DefaultCycleCheck,
+)
 from pyaestro.typing import Comparable
 from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
-from pyaestro.structures.graphs.utils import cycle_check, cycle_check_on_return
+from pyaestro.structures.graphs.utils import cycle_check_on_return
 
 
 class AdjacencyGraph(Graph):
@@ -85,11 +89,19 @@ class BidirectionalAdjGraph(BidirectionalGraph, AdjacencyGraph):
 class AcyclicAdjGraph(AdjacencyGraph):
     """A directed acyclic variant of the AdjacencyGraph data structure."""
 
-    @cycle_check()
+    def __init__(self, cycle_checker: CycleCheckProtocol = DefaultCycleCheck):
+        super().__init__()
+        self._cycle_checker: CycleCheckProtocol = cycle_checker
+
     def add_edge(
         self, a: Hashable, b: Hashable, weight: Comparable = 0
     ) -> None:
-        return super().add_edge(a, b, weight)
+        super().add_edge(a, b, weight)
+        if self._cycle_checker.detect_cycles(self):
+            raise RuntimeError(f"Addition of edge ({a}, {b}) creates a cycle!")
+
+    def __repr__(self) -> str:
+        return f"{type(self).__name__}(cycle_checker={self._cycle_checker})"
 
     @classmethod
     @cycle_check_on_return()
