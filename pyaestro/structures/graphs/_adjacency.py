@@ -30,11 +30,28 @@ class AdjacencyGraph(Graph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def edges(self) -> Iterable[GraphEdge]:
+        """Iterate the edges of a graph.
+
+        Returns:
+            Iterable[GraphEdge]: An iterable of tuples containing edges.
+        """
         for src, adj_list in self._adj_table.items():
             for dest, weight in adj_list.items():
                 yield GraphEdge(src, dest, weight)
 
     def get_neighbors(self, node: Hashable) -> Iterable[GraphEdge]:
+        """Get the connected neighbors of the specified node.
+
+        Args:
+            a (Hashable): Key whose neighbor's should be returned.
+
+        Raises:
+            KeyError: Raised when 'key' does not exist in the graph.
+
+        Returns:
+            Iterable[GraphEdge]: An iterable of GraphEdge records that
+            represent the neighbors of the vertex named 'key'.
+        """
         try:
             for dest, weight in self._adj_table[node].items():
                 yield GraphEdge(node, dest, weight)
@@ -44,6 +61,19 @@ class AdjacencyGraph(Graph):
     def add_edge(
         self, a: Hashable, b: Hashable, weight: Comparable = 0
     ) -> None:
+        """Add an edge to the graph.
+
+        Args:
+            a (Hashable): Key identifying side 'a' of an edge.
+            b (Hashable): Key identifying side 'b' of an edge.
+            weight(Comparable): Weight of the edge between 'a' and 'b'.
+            Defaults to 0 for unweighted.
+
+        Raises:
+            KeyError: Raised when either node 'a' or node 'b'
+            do not exist in the graph.
+        """
+
         try:
             # Add each edge
             self._adj_table[a][b] = weight
@@ -67,6 +97,15 @@ class AdjacencyGraph(Graph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
     def delete_edges(self, key: Hashable) -> None:
+        """Delete all edges associated to a key from the Graph.
+
+        Args:
+            key (Hashable): Key to a node whose edges are to be removed.
+
+        Raises:
+            KeyError: Raised when either node 'key' or does not exist in the
+            graph.
+        """
         try:
             self._adj_table[key].clear()
         except KeyError as key_error:
@@ -77,6 +116,15 @@ class BidirectionalAdjGraph(BidirectionalGraph, AdjacencyGraph):
     """An adjacency list implementation a bidirectional graph."""
 
     def delete_edges(self, key: Hashable) -> None:
+        """Delete all edges associated to a key from the Graph.
+
+        Args:
+            key (Hashable): Key to a node whose edges are to be removed.
+
+        Raises:
+            KeyError: Raised when either node 'key' or does not exist in the
+            graph.
+        """
         try:
             self._adj_table[key].pop(key, None)
             for neighbor, _ in self._adj_table[key].items():
@@ -96,6 +144,20 @@ class AcyclicAdjGraph(AdjacencyGraph):
     def add_edge(
         self, a: Hashable, b: Hashable, weight: Comparable = 0
     ) -> None:
+        """Add an edge to the graph.
+
+        Args:
+            a (Hashable): Key identifying side 'a' of an edge.
+            b (Hashable): Key identifying side 'b' of an edge.
+            weight(Comparable): Weight of the edge between 'a' and 'b'.
+            Defaults to 0 for unweighted.
+
+        Raises:
+            KeyError: Raised when either node 'a' or node 'b'
+            do not exist in the graph.
+            RuntimeError: Raised when a cycle is introduced by the addition of
+            edge (a, b).
+        """
         super().add_edge(a, b, weight)
         if self._cycle_checker.detect_cycles(self):
             raise RuntimeError(f"Addition of edge ({a}, {b}) creates a cycle!")

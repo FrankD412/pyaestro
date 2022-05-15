@@ -1,10 +1,12 @@
 """A module of different graph types and other properties."""
 from __future__ import annotations
 from abc import ABC, abstractmethod
+import functools
 import json
+from types import TracebackType
 import jsonschema
 from os.path import abspath, dirname, join
-from typing import Dict, Hashable, Iterable, Type
+from typing import Callable, Dict, Hashable, Iterable, Type
 
 from pyaestro.bases import Specifiable
 from pyaestro.typing import Comparable
@@ -18,8 +20,30 @@ class Graph(Specifiable, ABC):
     with open(join(SCHEMA_DIR, "graph.json")) as schema:
         _dict_schema = json.load(schema)
 
+    def _read_only(self, method: Callable):
+        @functools.wraps(method)
+        def locked_function(*args, **kwargs):
+            if self._locked:
+                raise RuntimeError(
+                    f"Unable to call method '{method.__name__}' while in "
+                    "read-only context."
+                )
+            return method(*args, **kwargs)
+
+        return locked_function
+
+    def __new__(cls, *args, **kwargs):
+        new_class = super().__new__(cls, *args, **kwargs)
+        new_class.__setitem__ = new_class._read_only(new_class.__setitem__)
+        new_class.__delitem__ = new_class._read_only(new_class.__setitem__)
+        new_class.remove_edge = new_class._read_only(new_class.remove_edge)
+        new_class.add_edge = new_class._read_only(new_class.add_edge)
+
+        return new_class
+
     def __init__(self):
         self._vertices = {}
+        self._locked = False
 
     def __contains__(self, key: Hashable) -> bool:
         return self._vertices.__contains__(key)
@@ -49,6 +73,20 @@ class Graph(Specifiable, ABC):
 
     def __len__(self) -> int:
         return len(self._vertices)
+
+    def __enter__(self) -> Graph:
+        self._locked = True
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self._locked = False
+        if exc_val:
+            raise exc_val
 
     @classmethod
     def from_specification(
