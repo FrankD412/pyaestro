@@ -6,24 +6,6 @@ from pyaestro.structures.graphs.algorithms import (
 )
 
 
-def cycle_check(
-    cycle_checker: CycleCheckProtocol = DefaultCycleCheck,
-) -> CycleCheckProtocol:
-    def inner(function: CycleCheckProtocol) -> CycleCheckProtocol:
-        @functools.wraps(function)
-        def cycle_check_wrapper(*args, **kwargs) -> bool:
-            ret_value = function(*args, **kwargs)
-
-            if cycle_checker.detect_cycles(args[0]):
-                raise RuntimeError("Cycle detected")
-
-            return ret_value
-
-        return cycle_check_wrapper
-
-    return inner
-
-
 def cycle_check_on_return(
     cycle_checker: CycleCheckProtocol = DefaultCycleCheck,
 ) -> CycleCheckProtocol:
