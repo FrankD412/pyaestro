@@ -1,7 +1,7 @@
 from pyaestro.structures.graphs._adjacency import (
+    AcyclicAdjGraph,
     AdjacencyGraph,
     BidirectionalAdjGraph,
-    AcyclicAdjGraph,
 )
 
 

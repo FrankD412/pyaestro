@@ -1,16 +1,16 @@
 from typing import Dict, Hashable, Iterable
 
+from pyaestro.abstracts.graphs import BidirectionalGraphInterface, Graph
 from pyaestro.dataclasses import GraphEdge
 from pyaestro.structures.graphs.algorithms import (
     CycleCheckProtocol,
     DefaultCycleCheck,
 )
+from pyaestro.structures.graphs.interfaces import DirectedGraphInterface
 from pyaestro.typing import Comparable
-from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
-from pyaestro.structures.graphs.utils import cycle_check_on_return
 
 
-class AdjacencyGraph(Graph):
+class AdjacencyGraph(DirectedGraphInterface, Graph):
     """An adjacency list implementation of a directed graph."""
 
     def __init__(self):
@@ -18,6 +18,7 @@ class AdjacencyGraph(Graph):
         super().__init__()
 
     def __setitem__(self, key: Hashable, value: object) -> None:
+        print("Inside AdjacencyGraph __setitem__")
         super().__setitem__(key, value)
         if key not in self._adj_table:
             self._adj_table[key] = {}
@@ -112,7 +113,7 @@ class AdjacencyGraph(Graph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
 
-class BidirectionalAdjGraph(BidirectionalGraph, AdjacencyGraph):
+class BidirectionalAdjGraph(BidirectionalGraphInterface, AdjacencyGraph):
     """An adjacency list implementation a bidirectional graph."""
 
     def delete_edges(self, key: Hashable) -> None:
@@ -163,10 +164,14 @@ class AcyclicAdjGraph(AdjacencyGraph):
             raise RuntimeError(f"Addition of edge ({a}, {b}) creates a cycle!")
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}(cycle_checker={self._cycle_checker})"
+        self_cls = self.__class__
+        self_cls = f"{self_cls.__module__}.{self_cls.__qualname__}"
+        cycle_cls = self._cycle_checker
+        cycle_cls = f"{cycle_cls.__module__}.{cycle_cls.__qualname__}"
+
+        return f"{self_cls}(cycle_checker={cycle_cls})"
 
     @classmethod
-    @cycle_check_on_return()
     def from_specification(cls, specification: Dict) -> Graph:
         """Creates an instance of a class from a specification dictionary.
 

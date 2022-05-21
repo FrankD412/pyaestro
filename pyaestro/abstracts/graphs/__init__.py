@@ -1,5 +1,9 @@
-from pyaestro.abstracts.graphs._bidirectional import BidirectionalGraph
 from pyaestro.abstracts.graphs._graph import Graph
+from pyaestro.abstracts.graphs._interfaces import GraphEdgeInterface
 
-
-__all__ = ("AcyclicGraph", "BidirectionalGraph", "Graph")
+__all__ = (
+    "AcyclicGraph",
+    "BidirectionalGraphMixin",
+    "Graph",
+    "GraphEdgeInterface",
+)

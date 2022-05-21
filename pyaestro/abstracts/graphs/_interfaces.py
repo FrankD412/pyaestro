@@ -1,12 +1,17 @@
+from __future__ import annotations
+
+from abc import ABC, abstractmethod
 from typing import Hashable
 
-from pyaestro.abstracts.graphs._graph import Graph
 from pyaestro.typing import Comparable
 
 
-class BidirectionalGraph(Graph):
-    def add_edge(self, a: Hashable, b: Hashable, weight: Comparable = 0):
-        """Add an undirected edge to the graph.
+class GraphEdgeInterface(ABC):
+    @abstractmethod
+    def add_edge(
+        self, a: Hashable, b: Hashable, weight: Comparable = 0
+    ) -> None:
+        """Add an edge to the graph.
 
         Args:
             a (Hashable): Key identifying side 'a' of an edge.
@@ -18,11 +23,11 @@ class BidirectionalGraph(Graph):
             KeyError: Raised when either node 'a' or node 'b'
             do not exist in the graph.
         """
-        super().add_edge(a, b, weight)
-        super().add_edge(b, a, weight)
+        raise NotImplementedError
 
+    @abstractmethod
     def remove_edge(self, a: Hashable, b: Hashable) -> None:
-        """Remove the bidirectional edge from nodes 'a' to 'b' from the graph.
+        """Remove an edge to the graph.
 
         Args:
             a (Hashable): Key identifying side 'a' of an edge.
@@ -32,6 +37,4 @@ class BidirectionalGraph(Graph):
             KeyError: Raised when either node 'a' or node 'b'
             do not exist in the graph.
         """
-        if a != b:
-            super().remove_edge(b, a)
-        super().remove_edge(a, b)
+        raise NotImplementedError

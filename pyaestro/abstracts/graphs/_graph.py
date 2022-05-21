@@ -1,28 +1,39 @@
 """A module of different graph types and other properties."""
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
 import functools
 import json
-from types import TracebackType
-import jsonschema
+from abc import ABC, abstractmethod
 from os.path import abspath, dirname, join
+from types import TracebackType
 from typing import Callable, Dict, Hashable, Iterable, Type
 
+import jsonschema
+
 from pyaestro.bases import Specifiable
-from pyaestro.typing import Comparable
 from pyaestro.dataclasses import GraphEdge
+from pyaestro.typing import Comparable
 
 SCHEMA_DIR = join(dirname(dirname(abspath(__file__))), "_schemas")
 
 
 class Graph(Specifiable, ABC):
 
+    _write_only_methods = (
+        "__setitem__",
+        "add_edge",
+        "delete_edges",
+        "remove_edge",
+        "__delitem__",
+    )
     with open(join(SCHEMA_DIR, "graph.json")) as schema:
         _dict_schema = json.load(schema)
 
-    def _read_only(self, method: Callable):
+    @classmethod
+    def _read_only(cls, method: Callable):
         @functools.wraps(method)
         def locked_function(*args, **kwargs):
+            self = args[0]
             if self._locked:
                 raise RuntimeError(
                     f"Unable to call method '{method.__name__}' while in "
@@ -32,14 +43,16 @@ class Graph(Specifiable, ABC):
 
         return locked_function
 
-    def __new__(cls, *args, **kwargs):
-        new_class = super().__new__(cls, *args, **kwargs)
-        new_class.__setitem__ = new_class._read_only(new_class.__setitem__)
-        new_class.__delitem__ = new_class._read_only(new_class.__setitem__)
-        new_class.remove_edge = new_class._read_only(new_class.remove_edge)
-        new_class.add_edge = new_class._read_only(new_class.add_edge)
-
-        return new_class
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+        print(cls.__setitem__)
+        cls.__setitem__ = cls._read_only(cls.__setitem__)
+        print(cls.__delitem__)
+        cls.__delitem__ = cls._read_only(cls.__setitem__)
+        print(cls.remove_edge)
+        cls.remove_edge = cls._read_only(cls.remove_edge)
+        cls.add_edge = cls._read_only(cls.add_edge)
 
     def __init__(self):
         self._vertices = {}
