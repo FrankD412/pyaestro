@@ -13,7 +13,7 @@ python = ">=3.7,<4"
 coloredlogs = "^15.0.1"
 psutil = "^5.8.0"
 jsonschema = "^3.2.0"
-typing-extensions = "^3.10.0"
+typing-extensions = {version = "^4.2.0", python = "<=3.7"}
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"
