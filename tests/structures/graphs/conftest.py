@@ -3,7 +3,7 @@ import pytest
 from random import choices, randint
 
 from tests.helpers.utils import generate_unique_upper_names
-from pyaestro.abstracts.graphs import BidirectionalGraph
+from pyaestro.structures.graphs import BidirectionalAdjGraph
 
 MAX_WEIGHT = 1000
 
@@ -27,7 +27,7 @@ def valid_specification(graph_type, weighted, sized_node_list):
         "vertices": {},
     }
     nodes = sized_node_list
-    bidirectional = issubclass(graph_type, BidirectionalGraph)
+    bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
     _edges = {}
 
     for node in nodes:
@@ -63,7 +63,7 @@ def sized_node_list(request):
 @pytest.fixture(scope="function", params=[1, 2, 4, 7, 8, 16, 32])
 def sized_graph(request, graph_type, weighted):
     graph = graph_type()
-    bidirectional = issubclass(graph_type, BidirectionalGraph)
+    bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
     edges = {}
     nodes = list(generate_unique_upper_names(request.param))
     print(nodes)

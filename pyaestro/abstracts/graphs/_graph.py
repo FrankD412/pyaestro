@@ -46,13 +46,11 @@ class Graph(Specifiable, ABC):
     @classmethod
     def __init_subclass__(cls, *args, **kwargs):
         super().__init_subclass__(*args, **kwargs)
-        print(cls.__setitem__)
         cls.__setitem__ = cls._read_only(cls.__setitem__)
-        print(cls.__delitem__)
-        cls.__delitem__ = cls._read_only(cls.__setitem__)
-        print(cls.remove_edge)
+        cls.__delitem__ = cls._read_only(cls.__delitem__)
         cls.remove_edge = cls._read_only(cls.remove_edge)
         cls.add_edge = cls._read_only(cls.add_edge)
+        cls.delete_edges = cls._read_only(cls.delete_edges)
 
     def __init__(self):
         self._vertices = {}

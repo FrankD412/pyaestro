@@ -1,16 +1,15 @@
 from typing import Dict, Hashable, Iterable
 
-from pyaestro.abstracts.graphs import BidirectionalGraphInterface, Graph
+from pyaestro.abstracts.graphs import Graph
 from pyaestro.dataclasses import GraphEdge
 from pyaestro.structures.graphs.algorithms import (
     CycleCheckProtocol,
     DefaultCycleCheck,
 )
-from pyaestro.structures.graphs.interfaces import DirectedGraphInterface
 from pyaestro.typing import Comparable
 
 
-class AdjacencyGraph(DirectedGraphInterface, Graph):
+class AdjacencyGraph(Graph):
     """An adjacency list implementation of a directed graph."""
 
     def __init__(self):
@@ -113,26 +112,39 @@ class AdjacencyGraph(DirectedGraphInterface, Graph):
             raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
 
 
-class BidirectionalAdjGraph(BidirectionalGraphInterface, AdjacencyGraph):
+class BidirectionalAdjGraph(AdjacencyGraph):
     """An adjacency list implementation a bidirectional graph."""
 
-    def delete_edges(self, key: Hashable) -> None:
-        """Delete all edges associated to a key from the Graph.
+    def add_edge(self, a: Hashable, b: Hashable, weight: Comparable = 0):
+        """Add an undirected edge to the graph.
 
         Args:
-            key (Hashable): Key to a node whose edges are to be removed.
+            a (Hashable): Key identifying side 'a' of an edge.
+            b (Hashable): Key identifying side 'b' of an edge.
+            weight(Comparable): Weight of the edge between 'a' and 'b'.
+            Defaults to 0 for unweighted.
 
         Raises:
-            KeyError: Raised when either node 'key' or does not exist in the
-            graph.
+            KeyError: Raised when either node 'a' or node 'b'
+            do not exist in the graph.
         """
-        try:
-            self._adj_table[key].pop(key, None)
-            for neighbor, _ in self._adj_table[key].items():
-                del self._adj_table[neighbor][key]
-            self._adj_table[key].clear()
-        except KeyError as key_error:
-            raise KeyError(f"Key '{key_error.args[0]}' not found in graph.")
+        super().add_edge(a, b, weight)
+        super().add_edge(b, a, weight)
+
+    def remove_edge(self, a: Hashable, b: Hashable) -> None:
+        """Remove the bidirectional edge from nodes 'a' to 'b' from the graph.
+
+        Args:
+            a (Hashable): Key identifying side 'a' of an edge.
+            b (Hashable): Key identifying side 'b' of an edge.
+
+        Raises:
+            KeyError: Raised when either node 'a' or node 'b'
+            do not exist in the graph.
+        """
+        if a != b:
+            super().remove_edge(b, a)
+        super().remove_edge(a, b)
 
 
 class AcyclicAdjGraph(AdjacencyGraph):

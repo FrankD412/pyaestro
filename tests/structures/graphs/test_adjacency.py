@@ -6,7 +6,7 @@ from random import randint, shuffle
 from typing import Dict, List, Type
 
 from pyaestro.dataclasses import GraphEdge
-from pyaestro.abstracts.graphs import BidirectionalGraph, Graph
+from pyaestro.abstracts.graphs import Graph
 from pyaestro.structures.graphs import (
     AcyclicAdjGraph,
     AdjacencyGraph,
@@ -418,7 +418,7 @@ class TestFullGraphs:
         """
         graph = graph_type()
         edges = set()
-        bidirectional = issubclass(graph_type, BidirectionalGraph)
+        bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
         for vertex, value in valid_specification["vertices"].items():
             graph[vertex] = value
@@ -523,7 +523,7 @@ class TestFullGraphs:
             sized_graph (Graph): A graph instance populated with nodes.
         """
         graph = sized_graph[0]
-        bidirectional = issubclass(graph_type, BidirectionalGraph)
+        bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
         edges = set()
         for node, edge_set in sized_graph[1].items():
@@ -599,7 +599,7 @@ class TestFullGraphs:
         """
         graph = sized_graph[0]
         edges = sized_graph[1]
-        bidirectional = issubclass(graph_type, BidirectionalGraph)
+        bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
@@ -633,7 +633,7 @@ class TestFullGraphs:
         """
         graph = sized_graph[0]
         edges = sized_graph[1]
-        bidirectional = issubclass(graph_type, BidirectionalGraph)
+        bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
