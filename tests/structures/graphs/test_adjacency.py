@@ -341,9 +341,7 @@ class TestBaseGraphInterface:
 
             assert "not found in graph" in str(excinfo)
 
-    def test__setitem__(
-        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
-    ) -> None:
+    def test__setitem__(self, sized_graph: Graph) -> None:
         """Tests that items can be set using the indexing [] notation.
 
         Passing conditions are being able to set and then access elements of
@@ -368,17 +366,13 @@ class TestBaseGraphInterface:
         for key in keys:
             assert graph[key] == values[key]
 
-    def test__setitem__missing(
-        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
-    ) -> None:
+    def test__setitem__missing(self, sized_graph: Graph) -> None:
         """Tests that a graph adds an element when missing.
 
         Passing conditions are being able to set and then access elements of
         a graph instance that do no exist previously.
 
         Args:
-            graph_type (Type[Graph]): A Graph class name to test.
-            weighted (bool): Enable/Disable weighted test.
             sized_graph (Graph): A graph instance populated with nodes.
         """
         graph = sized_graph[0]
@@ -395,6 +389,31 @@ class TestBaseGraphInterface:
 
         for node in values.keys():
             assert graph[node] == values[node]
+
+    @pytest.mark.parametrize("method", ["add_edge", "remove_edge"])
+    def test_readonly_edge_ops(self, sized_graph: Graph, method: str) -> None:
+        g = sized_graph[0]
+        with g as graph:
+            g_method = getattr(graph, method)
+            with pytest.raises(RuntimeError):
+                g_method("A", "B")
+
+    @pytest.mark.parametrize(
+        "method, args",
+        [
+            ("__delitem__", ["A"]),
+            ("__setitem__", ["A", None]),
+            ("delete_edges", ["A"]),
+        ],
+    )
+    def test_readonly_node_ops(
+        self, sized_graph: Graph, method: str, args: List
+    ) -> None:
+        g = sized_graph[0]
+        with g as graph:
+            g_method = getattr(graph, method)
+            with pytest.raises(RuntimeError):
+                g_method(*args)
 
 
 @pytest.mark.parametrize("graph_type", (AdjacencyGraph, BidirectionalAdjGraph))
@@ -486,9 +505,7 @@ class TestFullGraphs:
             diff = neighbors - edge_set
             assert len(diff) == 0
 
-    def test_get_neighbors_invalid(
-        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
-    ) -> None:
+    def test_get_neighbors_invalid(self, sized_graph: Graph) -> None:
         """Tests exception handling for get_neighbors for invalid nodes.
 
         Passing conditions are that calling get_neighbors on a node that does
@@ -509,9 +526,7 @@ class TestFullGraphs:
                 for neighbor in graph.get_neighbors(node):
                     continue
 
-    def test_edges(
-        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
-    ) -> None:
+    def test_edges(self, graph_type: Type[Graph], sized_graph: Graph) -> None:
         """Tests that edge retrieval functions against a reference edge set.
 
         Passing conditions are that a randomly generated graph returns the
@@ -582,7 +597,7 @@ class TestFullGraphs:
         assert len(list(graph.edges())) == len_edges
 
     def test_remove_edge(
-        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
+        self, graph_type: Type[Graph], sized_graph: Graph
     ) -> None:
         """Tests edge removal per node and per edge.
 
@@ -594,7 +609,6 @@ class TestFullGraphs:
 
         Args:
             graph_type (Type[Graph]): A Graph class name to test.
-            weighted (bool): Enable/Disable weighted test.
             sized_graph (Graph): A graph instance populated with nodes.
         """
         graph = sized_graph[0]
@@ -616,7 +630,7 @@ class TestFullGraphs:
         assert len(set(graph.edges())) == 0
 
     def test_remove_edge_missing(
-        self, graph_type: Type[Graph], weighted: bool, sized_graph: Graph
+        self, graph_type: Type[Graph], sized_graph: Graph
     ) -> None:
         """Tests edge removal per node for invalid edges.
 
@@ -628,7 +642,6 @@ class TestFullGraphs:
 
         Args:
             graph_type (Type[Graph]): A Graph class name to test.
-            weighted (bool): Enable/Disable weighted test.
             sized_graph (Graph): A graph instance populated with nodes.
         """
         graph = sized_graph[0]
@@ -666,6 +679,16 @@ class TestAcyclicGraph:
 
         with pytest.raises(RuntimeError):
             g.add_edge("A", "A")
+
+    def test_repr(self) -> None:
+        """Tests the reproducer (repr) method for Graph classes.
+
+        Passing condition is that  reproducer should always return
+        the class name without any parameters.
+        """
+        ref_repr = "AcyclicAdjGraph(cycle_checker=DefaultCycleCheck)"
+        g = AcyclicAdjGraph()
+        assert str(g) == ref_repr
 
     def test_add_nodes(self, sized_node_list: List[str]) -> None:
         """Tests a long chain of nodes with a cycle from last to first.
