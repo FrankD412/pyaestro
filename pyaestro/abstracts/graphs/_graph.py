@@ -18,14 +18,8 @@ SCHEMA_DIR = join(dirname(dirname(abspath(__file__))), "_schemas")
 
 
 class Graph(Specifiable, ABC):
+    """An abstact interface for building Graph data structures."""
 
-    _write_only_methods = (
-        "__setitem__",
-        "add_edge",
-        "delete_edges",
-        "remove_edge",
-        "__delitem__",
-    )
     with open(join(SCHEMA_DIR, "graph.json")) as schema:
         _dict_schema = json.load(schema)
 

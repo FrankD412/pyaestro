@@ -176,10 +176,8 @@ class AcyclicAdjGraph(AdjacencyGraph):
             raise RuntimeError(f"Addition of edge ({a}, {b}) creates a cycle!")
 
     def __repr__(self) -> str:
-        self_cls = self.__class__
-        self_cls = f"{self_cls.__module__}.{self_cls.__qualname__}"
-        cycle_cls = self._cycle_checker
-        cycle_cls = f"{cycle_cls.__module__}.{cycle_cls.__qualname__}"
+        self_cls = type(self).__name__
+        cycle_cls = self._cycle_checker.__name__
 
         return f"{self_cls}(cycle_checker={cycle_cls})"
 
