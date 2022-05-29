@@ -1,12 +1,13 @@
 from itertools import product
-from jsonschema import ValidationError
-import pytest
 from math import ceil
 from random import randint, shuffle
 from typing import Dict, List, Type
 
-from pyaestro.dataclasses import GraphEdge
+import pytest
+from jsonschema import ValidationError
+
 from pyaestro.abstracts.graphs import Graph
+from pyaestro.dataclasses import GraphEdge
 from pyaestro.structures.graphs import (
     AcyclicAdjGraph,
     AdjacencyGraph,

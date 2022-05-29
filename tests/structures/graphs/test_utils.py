@@ -1,5 +1,6 @@
-import pytest
 from typing import Type
+
+import pytest
 
 from pyaestro.abstracts.graphs import Graph
 from pyaestro.structures.graphs import AdjacencyGraph, BidirectionalAdjGraph
