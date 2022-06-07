@@ -54,16 +54,22 @@ class TestGraphEdge:
         Test passes if edges match in hash that have the same source and
         destination. Hashes should not be influenced by an edge's weight.
         """
+        # Unweighted edges
         a1 = GraphEdge("A", "B", 0)
         b1 = GraphEdge("A", "B")
         c1 = GraphEdge("A", "A")
         d1 = GraphEdge(None, None)
 
+        # Weighted edges
         a2 = GraphEdge("A", "B", 1)
         b2 = GraphEdge("A", "B", 2)
         c2 = GraphEdge("A", "A", 3)
         d2 = GraphEdge(None, None, 4)
 
+        # Here we test to see if the right hashing is happening.
+        # We expect that the weight has no bearing on the hash of a GraphEdge
+        # because we want the hashes to identify the edge irrespectively of its
+        # valued weight.
         assert hash(a1) == hash(a2)
         assert hash(a1) == hash(b1)
         assert hash(a1) == hash(b2)
@@ -74,14 +80,23 @@ class TestGraphEdge:
         assert hash(d1) != hash(c1)
 
     def test_sort(self, sized_node_list: List[str]) -> None:
-        """Tests the sort functionality on weighted and unweighted edges."""
+        """Tests the sort functionality on weighted and unweighted edges.
+
+        Args:
+            sized_node_list (List[str]): A list of unique node names.
+        """
+        # Construct a list of edges by product of itself and enumerate the
+        # index and apply it as a weight.
         edges = [
             GraphEdge(p[0], p[1], weight)
             for weight, p in enumerate(product(sized_node_list, repeat=2))
         ]
+        # Randomize the list so that it isn't in sorted order.
         shuffle(edges)
+        # Sort the edges in ascending order.
         edges.sort(reverse=False)
 
+        # Check that the weight in each index matches the index.
         for i in range(len(edges)):
             assert i == edges[i].value
 
@@ -89,6 +104,8 @@ class TestGraphEdge:
 @pytest.mark.parametrize("graph_type", GRAPHS)
 @pytest.mark.parametrize("weighted", [True, False])
 class TestBaseGraphInterface:
+    """Tests for the base API for all Graph sub-classes"""
+
     def test_repr(self, graph_type: Type[Graph], weighted: bool) -> None:
         """Tests the reproducer (repr) method for Graph classes.
 
@@ -99,6 +116,8 @@ class TestBaseGraphInterface:
             graph_type (Type[Graph]): A Graph class name to test.
             weighted (bool): Enable/Disable weighted test.
         """
+        # Test that the repr returns an empty constructor.
+        # TODO: Update the constructor to allow for edges + vertices
         graph = graph_type()
         assert str(graph) == f"{graph_type.__name__}()"
 
@@ -118,9 +137,11 @@ class TestBaseGraphInterface:
             weighted (bool): Enable/Disable weighted test.
             malformed_specification (Dict): A malformed graph specification.
         """
+        # Verify that we get a validation error with a bad specification.
         with pytest.raises(ValidationError) as excinfo:
             graph_type.from_specification(malformed_specification)
 
+        # Assert that we get a missing property custom error.
         assert "required property" in str(excinfo)
 
     def test_contains(
@@ -140,11 +161,13 @@ class TestBaseGraphInterface:
             sized_node_list (List[str]): A list of unique node names.
         """
         graph = graph_type()
-        print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
+        # Add all the nodes to the graph.
         for node in sized_node_list:
             graph[node] = None
 
+        # Shuffle the list to access the nodes in some random order
         shuffle(sized_node_list)
+        # Assert that we find the node in the list
         for node in sized_node_list:
             assert node in graph
 
@@ -165,8 +188,11 @@ class TestBaseGraphInterface:
             valid_specification (Dict): A valid graph specification.
         """
         try:
+            # Given a valid specification, load the graph
             graph_type.from_specification(valid_specification)
         except Exception as exception:
+            # This should not fail unless the fixture is broken, so document
+            # the error and force pytest to fail.
             msg = (
                 f"'{graph_type.__name__}.from_specification' raised an "
                 f"exception. Error: {str(exception)}"
@@ -189,18 +215,25 @@ class TestBaseGraphInterface:
             weighted (bool): Enable/Disable weighted test.
             sized_node_list (List[str]): A list of unique node names.
         """
+        # Construct a graph with the sized node list that contain random values
         graph = graph_type()
         values = {}
         for node in sized_node_list:
             values[node] = randint(0, 100000)
             graph[node] = values[node]
 
+        # Shuffle the node list to randomly access/delete from the graph
         shuffle(sized_node_list)
+        # While we have nodes in the list, continue to pop and remove.
         while sized_node_list:
             value = sized_node_list.pop()
             del graph[value]
 
+            # Assert that the node is not in the graph.
             assert value not in graph
+
+        # Assert that the graph is empty, since we removed all nodes
+        assert len(graph) == 0
 
     def test_len(
         self,
@@ -218,15 +251,19 @@ class TestBaseGraphInterface:
             weighted (bool): Enable/Disable weighted test.
             sized_node_list (List[str]): A list of unique node names.
         """
+        # Construct a fixed size graph based on the sized_node_list
         graph = graph_type()
-        print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         for node in sized_node_list:
             graph[node] = None
 
+        # This should return the number of vertices in the graph.
         assert len(sized_node_list) == len(graph)
 
     def test_del_missing(
-        self, graph_type: Type[Graph], weighted: bool
+        self,
+        graph_type: Type[Graph],
+        weighted: bool,
+        sized_node_list: List[str],
     ) -> None:
         """Tests the removal of a missing key from a graph.
 
@@ -236,14 +273,23 @@ class TestBaseGraphInterface:
         Args:
             graph_type (Type[Graph]): A Graph class name to test.
             weighted (bool): Enable/Disable weighted test.
+            sized_node_list (List[str]): A list of unique node names.
         """
+        # Construct and verify that the graph is empty.
         graph = graph_type()
         assert len(graph) == 0
         assert len(graph._vertices) == 0
 
+        # Add the nodes to the graph
+        for node in sized_node_list:
+            graph[node] = None
+
+        # Try to delete a node that is not in the graph and verify that it
+        # raises an exception
         with pytest.raises(KeyError) as excinfo:
             del graph["missing"]
 
+        # Assert that the exception points out that the node is missing.
         assert "not found in graph" in str(excinfo)
 
     def test_iter(
@@ -263,19 +309,28 @@ class TestBaseGraphInterface:
             weighted (bool): Enable/Disable weighted test.
             sized_node_list (List[str]): A list of unique node names.
         """
+        # Construct the graph and try to iterate.
         graph = graph_type()
         values = []
         for key in graph:
             values.append(key)
 
+        # The graph should be initially empty.
         assert len(values) == 0
 
+        # Add the nodes to the graph
         for key in sized_node_list:
             graph[key] = None
 
+        # Assert that we see the same number of nodes in the graph as we have
+        # in the node list.
         assert len(graph) == len(sized_node_list)
         for key in graph:
             values.append(key)
+        # Verify that we saw the same number of nodes iterating and that the
+        # node lists are exactly the same.
+        # NOTE: We cannot guarantee order because order may change based on how
+        # the graph stores its nodes. We must sort to guarantee ordering.
         assert sorted(values) == sorted(sized_node_list)
 
     def test_getitem(
@@ -294,15 +349,17 @@ class TestBaseGraphInterface:
             weighted (bool): Enable/Disable weighted test.
             sized_node_list (List[str]): A list of unique node names.
         """
-
+        # Initialize a graph with randomized vertex values and the same nodes
+        # as sized_node_list.
         graph = graph_type()
-        print(f"NODES [{len(sized_node_list)}]: {sized_node_list}")
         values = {}
         for node in sized_node_list:
             values[node] = randint(0, 100000)
             graph[node] = values[node]
 
+        # Shuffle the list.
         shuffle(sized_node_list)
+        # Assert that the nodes in the list are equal to their assigned values.
         for node in sized_node_list:
             assert graph[node] == values[node]
 
@@ -323,23 +380,30 @@ class TestBaseGraphInterface:
             weighted (bool): Enable/Disable weighted test.
             sized_node_list (List[str]): A list of unique node names.
         """
+        # Construct an empty graph.
         graph = graph_type()
         assert len(graph) == 0
         assert len(graph._vertices) == 0
 
+        # Assert that an exception is raised when trying to acces a missing
+        # item in an empty graph.blank
         with pytest.raises(KeyError) as excinfo:
             graph["missing"]
 
+        # Assert that the error contains a useful error message.
         assert "not found in graph" in str(excinfo)
 
         for node in sized_node_list:
             graph[node] = None
 
+        # Generate lowercase names that don't exist in the graph/
         missing = generate_unique_lower_names(len(sized_node_list))
         for node in missing:
+            # For each key, try to access assert that the lookup fails.
             with pytest.raises(KeyError) as excinfo:
                 graph[node]
 
+            # Assert that the error message has specific text.
             assert "not found in graph" in str(excinfo)
 
     def test__setitem__(self, sized_graph: Graph) -> None:
@@ -356,15 +420,21 @@ class TestBaseGraphInterface:
         graph = sized_graph[0]
         values = {}
 
+        # Iterate through all vertices in the graph
         for node in graph:
+            # Verify that the value meets expected initial configuration
             assert graph[node] is None
+            # Assign the node a random value
             value = randint(0, 1000)
+            # Set the value for both the node and in a map
             graph[node] = value
             values[node] = value
 
+        # Get and randomize the order of the nodes.
         keys = list(values.keys())
         shuffle(keys)
         for key in keys:
+            # Verify that we get the matching value back.
             assert graph[key] == values[key]
 
     def test__setitem__missing(self, sized_graph: Graph) -> None:
@@ -377,22 +447,34 @@ class TestBaseGraphInterface:
             sized_graph (Graph): A graph instance populated with nodes.
         """
         graph = sized_graph[0]
+        # Generate a random mumber of missing nodes that is at least half
+        # the size of the graph.
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
         values = {}
 
+        # Assert that the value is not in the graph, and set its value to a
+        # random integer.
         for node in missing_nodes:
             with pytest.raises(KeyError):
                 _ = graph[node]
             value = randint(0, 1000)
             graph[node] = value
+            # Document the value we selected.
             values[node] = value
 
+        # Verify that the nodes that we set are in fact the values we set.
         for node in values.keys():
             assert graph[node] == values[node]
 
     @pytest.mark.parametrize("method", ["add_edge", "remove_edge"])
     def test_readonly_edge_ops(self, sized_graph: Graph, method: str) -> None:
+        """Tests that edge modifying methods are blocked by context managers.
+
+        Args:
+            sized_graph (Graph): A graph instance populated with nodes.
+            method (str): Named of the method to be called.
+        """
         g = sized_graph[0]
         with g as graph:
             g_method = getattr(graph, method)
@@ -410,6 +492,13 @@ class TestBaseGraphInterface:
     def test_readonly_node_ops(
         self, sized_graph: Graph, method: str, args: List
     ) -> None:
+        """_summary_
+
+        Args:
+            sized_graph (Graph): A graph instance populated with nodes.
+            method (str): Named of the method to be called.
+            args (List): Arguments to the named method.
+        """
         g = sized_graph[0]
         with g as graph:
             g_method = getattr(graph, method)
@@ -440,16 +529,20 @@ class TestFullGraphs:
         edges = set()
         bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
+        # From a specification, add the vertices to the empty graph.
         for vertex, value in valid_specification["vertices"].items():
             graph[vertex] = value
 
+        # Add the edge to the graph manually.
         for vertex, neighbors in valid_specification["edges"].items():
             for neighbor, weight in neighbors:
                 edges.add(GraphEdge(vertex, neighbor, weight))
                 if bidirectional:
+                    # If we're testing bidirectionality, add a back edge to
+                    # the tracking set.
                     edges.add(GraphEdge(neighbor, vertex, weight))
                 graph.add_edge(vertex, neighbor, weight)
-
+        # Verify that the difference between the sets is the empty set.
         diff = set(graph.edges()) - edges
         assert len(diff) == 0
 
@@ -466,17 +559,19 @@ class TestFullGraphs:
             weighted (bool): Enable/Disable weighted test.
         """
         graph = graph_type()
-
+        # Verify that adding an edge to an invalid node raises a KeyError
         with pytest.raises(KeyError) as excinfo:
             graph.add_edge("invalid", "A")
 
         assert "'invalid' not found in graph" in str(excinfo)
 
+        # Verify that the same is true when adding an invalid destination.
         with pytest.raises(KeyError) as excinfo:
             graph.add_edge("A", "invalid")
 
         assert "'A' not found in graph" in str(excinfo)
 
+        # Verify that a key error is thrown when both are invalid.
         with pytest.raises(KeyError) as excinfo:
             graph.add_edge("invalid", "invalid2")
 
@@ -498,11 +593,14 @@ class TestFullGraphs:
         graph = sized_graph[0]
         edges = sized_graph[1]
 
+        # For each neighbor, check that all edges that we expect to see are
+        # in the edge set.
         for node in graph:
             neighbors = set(graph.get_neighbors(node))
             edge_set = set(
                 [GraphEdge(node, dst, weight) for dst, weight in edges[node]]
             )
+            # Verify that the neighbor set is the empty set.
             diff = neighbors - edge_set
             assert len(diff) == 0
 
@@ -518,13 +616,14 @@ class TestFullGraphs:
             sized_graph (Graph): A graph instance populated with nodes.
         """
         graph = sized_graph[0]
-
+        # Make a list of non-existent nodes that at least half the list.
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
 
+        # Attempt to get neighbors from the missing nodes.
         for node in missing_nodes:
             with pytest.raises(KeyError):
-                for neighbor in graph.get_neighbors(node):
+                for _ in graph.get_neighbors(node):
                     continue
 
     def test_edges(self, graph_type: Type[Graph], sized_graph: Graph) -> None:
@@ -542,12 +641,14 @@ class TestFullGraphs:
         bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
         edges = set()
+        # Add edges to the tracking sets.
         for node, edge_set in sized_graph[1].items():
             for e in edge_set:
                 edges.add(GraphEdge(node, e[0], e[1]))
                 if bidirectional:
                     edges.add(GraphEdge(e[0], node, e[1]))
 
+        # Verify tha tthe full set of graph edges matches our tracking.
         diff = set(graph.edges()) - set(edges)
         assert len(diff) == 0
 
@@ -566,11 +667,14 @@ class TestFullGraphs:
         """
         graph = sized_graph[0]
         edges = sized_graph[1]
-
+        # For each vertex, delete all edges to its neighbor.
         for node in edges.keys():
             graph.delete_edges(node)
+            # Verify that the neighbor count is 0.
             assert len(set(graph.get_neighbors(node))) == 0
 
+        # Verify that once all nodes have no neighbors that the edge count is
+        # zero across the whole graph.
         assert len(set(graph.edges())) == 0
 
     def test_delete_neighbors_missing(
@@ -587,14 +691,17 @@ class TestFullGraphs:
             sized_graph (Graph): A graph instance populated with nodes.
         """
         graph = sized_graph[0]
+        # Create a list of missing vertices
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
         len_edges = len(list(graph.edges()))
 
+        # Verify that each vertex raises a key error.
         for key in missing_nodes:
             with pytest.raises(KeyError):
                 graph.delete_edges(key)
 
+        # Verify that the original graph is untouched.
         assert len(list(graph.edges())) == len_edges
 
     def test_remove_edge(
@@ -616,13 +723,17 @@ class TestFullGraphs:
         edges = sized_graph[1]
         bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
+        # For each node, test removing edges to its neighbor one at a time
         for node in edges.keys():
             pruned = list(graph.get_neighbors(node))
             while pruned:
+                # Pop a new neighbor and remove its edge
                 neighbor = pruned.pop()
                 graph.remove_edge(neighbor.source, neighbor.destination)
-
+                # Retrieve the neighbors and verify that the current neighbor
+                # is not in the set.
                 assert neighbor not in graph.get_neighbors(node)
+                # If bidirectional, verify the backedge was removed.
                 if bidirectional:
                     assert node not in graph.get_neighbors(
                         neighbor.destination
@@ -649,18 +760,21 @@ class TestFullGraphs:
         edges = sized_graph[1]
         bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
 
+        # Create a list of missing vertices
         num_missing = randint(ceil(len(graph) // 2), len(graph) - 1)
         missing_nodes = list(generate_unique_lower_names(num_missing))
         len_edges = len(list(graph.edges()))
 
+        # Verify that removal raises a key error.
         for node in edges.keys():
             for neighbor in missing_nodes:
                 with pytest.raises(KeyError):
                     graph.remove_edge(node, neighbor)
+                # Make sure to check the backwards edge.
                 if bidirectional:
                     with pytest.raises(KeyError):
                         graph.remove_edge(neighbor, node)
-
+        # Verify that the original graph is untouched.
         assert len(list(graph.edges())) == len_edges
 
 
