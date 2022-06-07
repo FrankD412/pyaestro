@@ -1,9 +1,13 @@
 from math import ceil, sqrt
-import pytest
 from random import choices, randint
+from typing import Any, Dict, List, Set, Tuple, Type, Union
 
-from tests.helpers.utils import generate_unique_upper_names
+import pytest
+from pytest import FixtureRequest
+
+from pyaestro.abstracts.graphs import Graph
 from pyaestro.structures.graphs import BidirectionalAdjGraph
+from tests.helpers.utils import generate_unique_upper_names
 
 MAX_WEIGHT = 1000
 
@@ -16,12 +20,33 @@ MAX_WEIGHT = 1000
         {"malformed1": {}, "malformed2": {}},
     ],
 )
-def malformed_specification(request):
+def malformed_specification(request: FixtureRequest) -> Dict[str, Dict]:
+    """Creates an invalid specification for a graph data structure.
+
+    Args:
+        request (FixtureRequest): Pytest request with test configuration.
+
+    Returns:
+        Dict[str, Dict]: Invalid specification.
+    """
     return request.param
 
 
 @pytest.fixture(scope="function")
-def valid_specification(graph_type, weighted, sized_node_list):
+def valid_specification(
+    graph_type: Type[Graph], weighted: bool, sized_node_list: List[str]
+) -> Dict[str, Dict[str, Union[List[Tuple[str, Any]], Any]]]:
+    """Creates a valid graph specification.
+
+    Args:
+        graph_type (Type[Graph]): A Graph class name to test.
+        weighted (bool): Enable/Disable weighted test.
+        sized_node_list (List[str]): A list of unique node names.
+
+    Returns:
+        Dict[str, Dict[str, Union[List[Tuple[str, Any]], Any]]]: A valid
+        specification based on the graph_type and sized_node_list.
+    """
     spec = {
         "edges": {},
         "vertices": {},
@@ -56,12 +81,34 @@ def valid_specification(graph_type, weighted, sized_node_list):
 
 
 @pytest.fixture(scope="function", params=[1, 2, 4, 7, 8, 16, 32])
-def sized_node_list(request):
+def sized_node_list(request) -> List[str]:
+    """Creates a list of unique vertices names.
+
+    Args:
+        request (FixtureRequest): Pytest request with test configuration.
+
+    Returns:
+        List[str]: A list of unique node names.
+    """
     return list(generate_unique_upper_names(request.param))
 
 
 @pytest.fixture(scope="function", params=[1, 2, 4, 7, 8, 16, 32])
-def sized_graph(request, graph_type, weighted):
+def sized_graph(
+    request: FixtureRequest, graph_type: Type[Graph], weighted: bool
+) -> Tuple[Graph, Dict[str, Set[str]]]:
+    """_summary_
+
+    Args:
+        request (FixtureRequest): Pytest request with test configuration.
+        graph_type (Type[Graph]): A Graph class name to test.
+        weighted (bool): Enable/Disable weighted test.
+
+    Returns:
+        Tuple[Graph, Dict[str, Set[str]]]: A constructed graph and a
+        dictionary of vertices to a set of neighbors matching the
+        contents of the provided graph.
+    """
     graph = graph_type()
     bidirectional = issubclass(graph_type, BidirectionalAdjGraph)
     edges = {}
@@ -97,7 +144,21 @@ def sized_graph(request, graph_type, weighted):
 
 
 @pytest.fixture(scope="function")
-def valid_acyclic_specification(weighted, sized_node_list):
+def valid_acyclic_specification(
+    weighted: bool, sized_node_list: List[str]
+) -> Dict[str, Dict[str, Union[List[Tuple[str, Any]], Any]]]:
+    """Generates an acyclic graph specification.
+
+    Args:
+        weighted (bool): Enable/Disable weighted test.
+        sized_node_list (List[str]): A list of unique node names.
+
+    Returns:
+        Dict[str, Dict[str, Union[List[Tuple[str, Any]], Any]]]:
+        A valid specification based on sized_node_list that is guaranteed to
+        not contain cycles.
+
+    """
     spec = {
         "edges": {},
         "vertices": {},
@@ -127,7 +188,21 @@ def valid_acyclic_specification(weighted, sized_node_list):
 
 
 @pytest.fixture(scope="function")
-def valid_cyclic_specification(weighted, sized_node_list):
+def valid_cyclic_specification(
+    weighted: bool, sized_node_list: List[str]
+) -> Dict[str, Dict[str, Union[List[Tuple[str, Any]], Any]]]:
+    """Generates an cyclic graph specification.
+
+    Args:
+        weighted (bool): Enable/Disable weighted test.
+        sized_node_list (List[str]): A list of unique node names.
+
+    Returns:
+        Dict[str, Dict[str, Union[List[Tuple[str, Any]], Any]]]:
+        A valid specification based on sized_node_list that is guaranteed to
+        contain at least one cycle.
+
+    """
     spec = {
         "edges": {},
         "vertices": {},
