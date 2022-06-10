@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Hashable, Iterable, Set
+from typing import Hashable, Iterable, Set, Tuple
 
 # Python 3.7 compatibility
 try:
@@ -24,62 +24,82 @@ class CycleCheckProtocol(Protocol):
         ...
 
 
-def breadth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
-    """Perform a breadth-first search of the provided Graph.
+class GraphSearchProtocol(Protocol):
+    @classmethod
+    def search(cls, graph: Graph, src: Hashable) -> Iterable[Hashable]:
+        """Perform a search of the provided Graph from a specified origin.
 
-    Args:
-        graph (Graph): [description]
-        source (Hashable): [description]
-
-    Returns:
-        Iterable: [description]
-    """
-    visited: Set[Hashable] = set()
-    to_visit: deque[Hashable] = deque()
-
-    to_visit.append((source, None))
-    visited.add(source)
-    while to_visit:
-        root, parent = to_visit.popleft()
-        for edge in graph.get_neighbors(root):
-            node = edge.destination
-
-            if node in visited:
-                continue
-
-            to_visit.append((node, root))
-            visited.add(node)
-
-        yield root, parent
+        Args:
+            graph (Graph): An instance of a Graph data structure.
+            src (Hashable): Vertex to start the search from.
+        
+        Returns:
+            Iterable[Tuple[Hashable]]: Iterable of tuples representing the
+            combination of (node, parent) search path.
+        """
+        ...
 
 
-def depth_first_search(graph: Graph, source: Hashable) -> Iterable[Hashable]:
-    """Perform a depth-first search of the provided Graph.
+class BreadthFirstSearch:
+    def search(graph: Graph, source: Hashable) -> Iterable[Tuple[Hashable]]:
+        """Perform a breadth-first search on a graph data structure.
 
-    Args:
-        graph (Graph): [description]
-        source (Hashable): [description]
+        Args:
+            graph (Graph): An instance of a Graph data structure.
+            src (Hashable): Vertex to start the search from.
+        
+        Returns:
+            Iterable[Tuple[Hashable]]: Iterable of tuples representing the
+            combination of (node, parent) in the BFS search.
+        """
+        visited: Set[Hashable] = set()
+        to_visit: deque[Hashable] = deque()
 
-    Returns:
-        Iterable: [description]
-    """
-    visited: Set[Hashable] = set()
-    to_visit: deque[Hashable] = deque()
+        to_visit.append((source, None))
+        visited.add(source)
+        while to_visit:
+            root, parent = to_visit.popleft()
+            for edge in graph.get_neighbors(root):
+                node = edge.destination
 
-    to_visit.append((source, None))
-    visited.add(source)
-    while to_visit:
-        root, parent = to_visit.pop()
-        for edge in graph.get_neighbors(root):
-            node = edge.destination
+                if node in visited:
+                    continue
 
-            if node in visited:
-                continue
+                to_visit.append((node, root))
+                visited.add(node)
 
-            to_visit.append((node, root))
-            visited.add(node)
+            yield root, parent
 
-        yield root, parent
+
+class DepthFirstSearch:
+    def search(graph: Graph, source: Hashable) -> Iterable[Tuple[Hashable]]:
+        """Perform a depth-first search on a graph data structure.
+
+        Args:
+            graph (Graph): An instance of a Graph data structure.
+            src (Hashable): Vertex to start the search from.
+        
+        Returns:
+            Iterable[Tuple[Hashable]]: Iterable of tuples representing the
+            combination of (node, parent) in the DFS search.
+        """
+        visited: Set[Hashable] = set()
+        to_visit: deque[Hashable] = deque()
+
+        to_visit.append((source, None))
+        visited.add(source)
+        while to_visit:
+            root, parent = to_visit.pop()
+            for edge in graph.get_neighbors(root):
+                node = edge.destination
+
+                if node in visited:
+                    continue
+
+                to_visit.append((node, root))
+                visited.add(node)
+
+            yield root, parent
 
 
 class DefaultCycleCheck:
