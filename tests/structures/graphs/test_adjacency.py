@@ -492,7 +492,7 @@ class TestBaseGraphInterface:
     def test_readonly_node_ops(
         self, sized_graph: Graph, method: str, args: List
     ) -> None:
-        """_summary_
+        """Tests that node-wise modifications are blocked with context managers.
 
         Args:
             sized_graph (Graph): A graph instance populated with nodes.
@@ -504,6 +504,20 @@ class TestBaseGraphInterface:
             g_method = getattr(graph, method)
             with pytest.raises(RuntimeError):
                 g_method(*args)
+
+    def test_readonly_exception(self, sized_graph: Graph) -> None:
+        """Tests that exceptions are properly raised in context managers.
+
+        Args:
+            sized_graph (Graph): A graph instance populated with nodes.
+        """
+        try:
+            with sized_graph[0] as graph:
+                raise ValueError("Dummy exception")
+        except ValueError as exception:
+            assert "Dummy exception" in str(exception)
+        else:
+            pytest.fail("Message did not match expected return.")
 
 
 @pytest.mark.parametrize("graph_type", (AdjacencyGraph, BidirectionalAdjGraph))
