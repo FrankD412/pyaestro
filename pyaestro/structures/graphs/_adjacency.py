@@ -17,7 +17,6 @@ class AdjacencyGraph(Graph):
         super().__init__()
 
     def __setitem__(self, key: Hashable, value: object) -> None:
-        print("Inside AdjacencyGraph __setitem__")
         super().__setitem__(key, value)
         if key not in self._adj_table:
             self._adj_table[key] = {}
