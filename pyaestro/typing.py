@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from abc import abstractmethod
-from typing_extensions import Protocol, TypeVar
+try:
+    from typing import Protocol
+except ImportError:
+    from typing_extensions import Protocol
 
 
-class ComparableInterface(Protocol):
+class Comparable(Protocol):
     """A class that defines a comparability interface."""
-    @abstractmethod
-    def __lt__(self: Comparable, other: Comparable) -> bool:
-        raise NotImplementedError()
 
-
-Comparable = TypeVar("Comparable", bound=ComparableInterface)
+    def __lt__(self, other: Comparable) -> bool:
+        ...

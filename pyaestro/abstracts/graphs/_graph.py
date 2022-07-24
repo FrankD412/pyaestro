@@ -1,27 +1,56 @@
 """A module of different graph types and other properties."""
 from __future__ import annotations
-from abc import ABC, abstractmethod
+
+import functools
 import json
-import jsonschema
+from abc import ABC, abstractmethod
 from os.path import abspath, dirname, join
-from typing import Dict, Hashable, Iterable, Type
+from types import TracebackType
+from typing import Callable, Dict, Hashable, Iterable, Type
+
+import jsonschema
 
 from pyaestro.bases import Specifiable
-from pyaestro.typing import Comparable
 from pyaestro.dataclasses import GraphEdge
+from pyaestro.typing import Comparable
 
-SCHEMA_DIR = join(dirname(abspath(__file__)), "_schemas")
+SCHEMA_DIR = join(dirname(dirname(abspath(__file__))), "_schemas")
 
 
 class Graph(Specifiable, ABC):
+    """An abstact interface for building Graph data structures."""
 
     with open(join(SCHEMA_DIR, "graph.json")) as schema:
         _dict_schema = json.load(schema)
 
+    @classmethod
+    def _read_only(cls, method: Callable):
+        @functools.wraps(method)
+        def locked_function(*args, **kwargs):
+            self = args[0]
+            if self._locked:
+                raise RuntimeError(
+                    f"Unable to call method '{method.__name__}' while in "
+                    "read-only context."
+                )
+            return method(*args, **kwargs)
+
+        return locked_function
+
+    @classmethod
+    def __init_subclass__(cls, *args, **kwargs):
+        super().__init_subclass__(*args, **kwargs)
+        cls.__setitem__ = cls._read_only(cls.__setitem__)
+        cls.__delitem__ = cls._read_only(cls.__delitem__)
+        cls.remove_edge = cls._read_only(cls.remove_edge)
+        cls.add_edge = cls._read_only(cls.add_edge)
+        cls.delete_edges = cls._read_only(cls.delete_edges)
+
     def __init__(self):
         self._vertices = {}
+        self._locked = False
 
-    def __contains__(self, key) -> bool:
+    def __contains__(self, key: Hashable) -> bool:
         return self._vertices.__contains__(key)
 
     def __getitem__(self, key):
@@ -50,19 +79,32 @@ class Graph(Specifiable, ABC):
     def __len__(self) -> int:
         return len(self._vertices)
 
+    def __enter__(self) -> Graph:
+        self._locked = True
+        return self
+
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
+        self._locked = False
+        if exc_val:
+            raise exc_val
+
     @classmethod
     def from_specification(
-        cls,
-        specification: Dict[Hashable, Dict[Hashable, object]]
+        cls, specification: Dict[Hashable, Dict[Hashable, object]]
     ) -> Type[Graph]:
         """Construct a Graph based on a specification of edges and vertices.
 
         Args:
             specification (Dict[Hashable, Dictionary[Hashable, object]]):
             A dictionary containing two keys:
-                - edges: A dictionary of neighbors for each vertex containing
+                edges: A dictionary of neighbors for each vertex containing
                     a list of (neighbor, weight) tuples.
-                - vertices: A dictionary mapping keys to their values.
+                vertices: A dictionary mapping keys to their values.
 
         Returns:
             Type[Graph]: An instance of the type Graph.
@@ -72,10 +114,7 @@ class Graph(Specifiable, ABC):
             schema for a Graph.
         """
         graph = cls()
-        jsonschema.validate(
-            specification, schema=cls._dict_schema,
-            types={'array': (list, tuple)}
-        )
+        jsonschema.validate(specification, schema=cls._dict_schema)
 
         for vertex, value in specification["vertices"].items():
             graph[vertex] = value
@@ -151,36 +190,3 @@ class Graph(Specifiable, ABC):
             represent the neighbors of the vertex named 'key'.
         """
         raise NotImplementedError
-
-
-class BidirectionalGraph(Graph):
-    def add_edge(self, a: Hashable, b: Hashable, weight: Comparable = 0):
-        """Add an undirected edge to the graph.
-
-        Args:
-            a (Hashable): Key identifying side 'a' of an edge.
-            b (Hashable): Key identifying side 'b' of an edge.
-            weight(Comparable): Weight of the edge between 'a' and 'b'.
-            Defaults to 0 for unweighted.
-
-        Raises:
-            KeyError: Raised when either node 'a' or node 'b'
-            do not exist in the graph.
-        """
-        super().add_edge(a, b, weight)
-        super().add_edge(b, a, weight)
-
-    def remove_edge(self, a: Hashable, b: Hashable) -> None:
-        """Remove the bidirectional edge from nodes 'a' to 'b' from the graph.
-
-        Args:
-            a (Hashable): Key identifying side 'a' of an edge.
-            b (Hashable): Key identifying side 'b' of an edge.
-
-        Raises:
-            KeyError: Raised when either node 'a' or node 'b'
-            do not exist in the graph.
-        """
-        if a != b:
-            super().remove_edge(b, a)
-        super().remove_edge(a, b)

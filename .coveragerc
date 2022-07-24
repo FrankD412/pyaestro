@@ -6,5 +6,11 @@ exclude_lines =
     # Don't complain if tests don't hit defensive assertion code:
     raise NotImplementedError
 
+    [\s*]\.\.\.
+
+    except ImportError: 
+        from typing_extensions import Protocol 
+
 [run]
 omit = tests/*
+
