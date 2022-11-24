@@ -68,6 +68,32 @@ def depth_first_search(
         yield root, parent
 
 
+def topological_sort(
+    graph: Graph, source: Hashable = None
+) -> Iterable[Hashable]:
+    perm_mark: Set[Hashable] = set()
+    temp_mark: Set[Hashable] = set()
+    topo_order: List[Hashable] = []
+    visit_stack: deque[Hashable] = deque()
+
+    if source:
+        visit_stack.append(source)
+
+    def visit(node):
+        if node in perm_mark:
+            return
+
+        if node in temp_mark:
+            raise RuntimeError()
+
+        temp_mark.add(node)
+        for neighbor in graph.get_neighbors(node):
+            visit(neighbor)
+
+        temp_mark.remove(node)
+        perm_mark.add(node)
+
+
 def detect_cycles(graph: Graph) -> bool:
     """Detect a cycle in a graph.
 
