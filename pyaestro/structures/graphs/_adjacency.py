@@ -1,11 +1,8 @@
-from typing import Dict, Hashable, Iterable
+from typing import Callable, Dict, Hashable, Iterable
 
 from pyaestro.abstracts.graphs import Graph
 from pyaestro.dataclasses import GraphEdge
-from pyaestro.structures.graphs.algorithms import (
-    CycleCheckProtocol,
-    DefaultCycleCheck,
-)
+from pyaestro.structures.graphs.algorithms import detect_cycles
 from pyaestro.typing import Comparable
 
 
@@ -149,9 +146,9 @@ class BidirectionalAdjGraph(AdjacencyGraph):
 class AcyclicAdjGraph(AdjacencyGraph):
     """A directed acyclic variant of the AdjacencyGraph data structure."""
 
-    def __init__(self, cycle_checker: CycleCheckProtocol = DefaultCycleCheck):
+    def __init__(self, cycle_checker: Callable = detect_cycles):
         super().__init__()
-        self._cycle_checker: CycleCheckProtocol = cycle_checker
+        self._cycle_checker: Callable = cycle_checker
 
     def add_edge(
         self, a: Hashable, b: Hashable, weight: Comparable = 0
@@ -171,7 +168,7 @@ class AcyclicAdjGraph(AdjacencyGraph):
             edge (a, b).
         """
         super().add_edge(a, b, weight)
-        if self._cycle_checker.detect_cycles(self):
+        if self._cycle_checker(self):
             raise RuntimeError(f"Addition of edge ({a}, {b}) creates a cycle!")
 
     def __repr__(self) -> str:

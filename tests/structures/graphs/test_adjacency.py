@@ -815,7 +815,7 @@ class TestAcyclicGraph:
         Passing condition is that  reproducer should always return
         the class name without any parameters.
         """
-        ref_repr = "AcyclicAdjGraph(cycle_checker=DefaultCycleCheck)"
+        ref_repr = "AcyclicAdjGraph(cycle_checker=detect_cycles)"
         g = AcyclicAdjGraph()
         assert str(g) == ref_repr
 

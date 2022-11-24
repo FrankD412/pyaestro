@@ -4,8 +4,8 @@ from typing import List, Type
 
 from pyaestro.abstracts.graphs import Graph
 from pyaestro.structures.graphs.algorithms import (
-    BreadthFirstSearch,
-    DepthFirstSearch,
+    breadth_first_search,
+    depth_first_search,
 )
 from pyaestro.structures.graphs import (
     AcyclicAdjGraph,
@@ -35,7 +35,7 @@ class TestDepthFirstSearch:
             parent = int((i - 1) / 2)
             g.add_edge(sized_node_list[parent], sized_node_list[i])
 
-        path = list(DepthFirstSearch.search(g, sized_node_list[0]))
+        path = list(depth_first_search(g, sized_node_list[0]))
         # In this case, we expect to hit all nodes; lengths must match since
         # all nodes are in path.
         assert len(path) == len(sized_node_list)
@@ -74,7 +74,7 @@ class TestDepthFirstSearch:
             g.add_edge(sized_node_list[i-1], sized_node_list[i])
 
         result = []
-        for i, node in enumerate(DepthFirstSearch.search(g, source)):
+        for i, node in enumerate(depth_first_search(g, source)):
             assert node[0] == path[i][0]
             assert node[1] == path[i][1]
             result.append(node)
@@ -103,7 +103,7 @@ class TestBreadthFirstSearch:
             parent = int((i - 1) / 2)
             g.add_edge(sized_node_list[parent], sized_node_list[i])
 
-        path = list(BreadthFirstSearch.search(g, sized_node_list[0]))
+        path = list(breadth_first_search(g, sized_node_list[0]))
         # In this case, we expect to hit all nodes; lengths must match since
         # all nodes are in path.
         assert len(path) == len(sized_node_list)
@@ -146,7 +146,7 @@ class TestBreadthFirstSearch:
             g.add_edge(sized_node_list[i-1], sized_node_list[i])
 
         result = []
-        for i, node in enumerate(BreadthFirstSearch.search(g, source)):
+        for i, node in enumerate(breadth_first_search(g, source)):
             assert node[0] == path[i][0]
             assert node[1] == path[i][1]
             result.append(node)
