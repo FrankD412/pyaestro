@@ -6,7 +6,9 @@ description = "A package of utilities structures for building workflows and work
 authors = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
 maintainers = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
 license = "MIT"
-include = ["pyaestro/core/datastructures/_schemas/graph.json"]
+
+[tool.setuptools.package-data]
+"abstract.scehmas" = ["pyaestro/abstracts/_schemas/*"]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<4"
