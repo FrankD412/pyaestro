@@ -1,4 +1,5 @@
 from collections import deque
+import random
 from typing import Callable, Hashable, Iterable, List, Set, Tuple
 
 from pyaestro.abstracts.graphs import Graph
@@ -68,30 +69,53 @@ def depth_first_search(
         yield root, parent
 
 
-def topological_sort(
-    graph: Graph, source: Hashable = None
-) -> Iterable[Hashable]:
+def topological_sort(graph: Graph) -> List[Hashable]:
     perm_mark: Set[Hashable] = set()
-    temp_mark: Set[Hashable] = set()
     topo_order: List[Hashable] = []
-    visit_stack: deque[Hashable] = deque()
 
-    if source:
-        visit_stack.append(source)
+    for node in graph:
+        # We have already visited all nodes and there is no more work to
+        # do. Return the ordering.
+        if len(perm_mark) == len(graph):
+            return topo_order
 
-    def visit(node):
+        # We've already permanently visited this node, do nothing with it.
         if node in perm_mark:
-            return
+            continue
 
-        if node in temp_mark:
-            raise RuntimeError()
+        # Stacks for performing depth-first search
+        visit_stack: deque[Hashable] = deque()
+        path_stack: deque[Hashable] = deque()
+        temp_mark: Set[Hashable] = set()
 
-        temp_mark.add(node)
-        for neighbor in graph.get_neighbors(node):
-            visit(neighbor)
+        # Otherwise we have found a node that we want to explore
+        visit_stack.append(node)
+        while visit_stack:
+            # Pop the latest
+            cur_node = visit_stack.pop()
 
-        temp_mark.remove(node)
-        perm_mark.add(node)
+            # If we hit a node that is temporily marked (under consideration)
+            # then we have found a cycle
+            if cur_node in temp_mark:
+                raise RuntimeError()
+
+            # We've already permanently visited this node, do nothing with it.
+            if cur_node in perm_mark:
+                continue
+
+            # Add a temporary mark to denote that we've visited already
+            temp_mark.add(cur_node)
+            path_stack.append(cur_node)
+
+            for neighbor in graph.get_neighbors(cur_node):
+                visit_stack.append(neighbor.destination)
+
+        while path_stack:
+            cur_node = path_stack.pop()
+            perm_mark.add(cur_node)
+            topo_order.append(cur_node)
+
+        return topo_order[::-1]
 
 
 def detect_cycles(graph: Graph) -> bool:
