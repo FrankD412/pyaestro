@@ -1,6 +1,5 @@
 from collections import deque
-import random
-from typing import Callable, Hashable, Iterable, List, Set, Tuple
+from typing import Hashable, Iterable, List, Set, Tuple
 
 from pyaestro.abstracts.graphs import Graph
 
@@ -67,6 +66,61 @@ def depth_first_search(
             visited.add(node)
 
         yield root, parent
+
+
+def recursive_topological_sort(graph: Graph):
+    temp_markers: set[Hashable] = set()
+    perm_markers: set[Hashable] = set()
+    topo_order: list[Hashable] = []
+
+    def visit(node):
+        if node in perm_markers:
+            return
+
+        if node in temp_markers:
+            raise RuntimeError()
+
+        for neighbor in graph.get_neighbors(node):
+            visit(neighbor.destination)
+
+        temp_markers.remove(node)
+        perm_markers.add(node)
+        topo_order.append(node)
+
+    for node in graph:
+        visit(node)
+
+    return topo_order[::-1]
+
+
+def topological_sort_iterative(graph: Graph) -> list[Hashable]:
+    perm_markers: set[Hashable] = set()
+    temp_markers: set[Hashable] = set()
+    topo_order: list[Hashable] = []
+
+    for node in graph:
+        if node in perm_markers:
+            continue
+
+        visit_stack: deque[Hashable] = deque()
+        path_stack: deque[Hashable] = deque()
+        while visit_stack:
+            current = visit_stack.pop()
+            temp_markers.add(current)
+
+            for neighbor in graph.get_neighbors(current):
+                if neighbor.destination in temp_markers:
+                    raise RuntimeError()
+                visit_stack.append(neighbor.destination)
+            path_stack.append(current)
+
+        while path_stack:
+            current = path_stack.pop()
+            temp_markers.remove(current)
+            perm_markers.add(current)
+            topo_order.append(current)
+
+    return topo_order
 
 
 def topological_sort(graph: Graph) -> List[Hashable]:
