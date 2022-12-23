@@ -6,7 +6,7 @@ from pyaestro.abstracts.graphs import Graph
 
 def breadth_first_search(
     graph: Graph, source: Hashable
-) -> Iterable[Tuple[Hashable]]:
+) -> Iterable[Tuple[Hashable, Hashable]]:
     """Perform a breadth-first search on a graph data structure.
 
     Args:
@@ -18,7 +18,7 @@ def breadth_first_search(
         combination of (node, parent) in the BFS search.
     """
     visited: Set[Hashable] = set()
-    to_visit: deque[Hashable] = deque()
+    to_visit: deque = deque()
 
     to_visit.append((source, None))
     visited.add(source)
@@ -38,7 +38,7 @@ def breadth_first_search(
 
 def depth_first_search(
     graph: Graph, source: Hashable
-) -> Iterable[Tuple[Hashable]]:
+) -> Iterable[Tuple[Hashable, Hashable]]:
     """Perform a depth-first search on a graph data structure.
 
     Args:
@@ -50,7 +50,7 @@ def depth_first_search(
         combination of (node, parent) in the DFS search.
     """
     visited: Set[Hashable] = set()
-    to_visit: deque[Hashable] = deque()
+    to_visit: deque = deque()
 
     to_visit.append((source, None))
     visited.add(source)
@@ -68,7 +68,18 @@ def depth_first_search(
         yield root, parent
 
 
-def recursive_topological_sort(graph: Graph):
+def recursive_topological_sort(graph: Graph) -> List[Hashable]:
+    """Perform a topological sort recursively on a graph.
+
+    Args:
+        graph (Graph): A graph to perform sorting on.
+
+    Raises:
+        RuntimeError: Raised when a cycle is detected in provided graph.
+
+    Returns:
+        List[Hashable]: A valid topological sorting for the provided graph.
+    """
     temp_markers: set[Hashable] = set()
     perm_markers: set[Hashable] = set()
     topo_order: list[Hashable] = []
@@ -79,6 +90,8 @@ def recursive_topological_sort(graph: Graph):
 
         if node in temp_markers:
             raise RuntimeError()
+
+        temp_markers.add(node)
 
         for neighbor in graph.get_neighbors(node):
             visit(neighbor.destination)
@@ -93,37 +106,18 @@ def recursive_topological_sort(graph: Graph):
     return topo_order[::-1]
 
 
-def topological_sort_iterative(graph: Graph) -> list[Hashable]:
-    perm_markers: set[Hashable] = set()
-    temp_markers: set[Hashable] = set()
-    topo_order: list[Hashable] = []
+def topological_sort_iterative(graph: Graph) -> List[Hashable]:
+    """Perform a topological sort recursively on a graph.
 
-    for node in graph:
-        if node in perm_markers:
-            continue
+    Args:
+        graph (Graph): A graph to perform sorting on.
 
-        visit_stack: deque[Hashable] = deque()
-        path_stack: deque[Hashable] = deque()
-        while visit_stack:
-            current = visit_stack.pop()
-            temp_markers.add(current)
+    Raises:
+        RuntimeError: Raised when a cycle is detected in provided graph.
 
-            for neighbor in graph.get_neighbors(current):
-                if neighbor.destination in temp_markers:
-                    raise RuntimeError()
-                visit_stack.append(neighbor.destination)
-            path_stack.append(current)
-
-        while path_stack:
-            current = path_stack.pop()
-            temp_markers.remove(current)
-            perm_markers.add(current)
-            topo_order.append(current)
-
-    return topo_order
-
-
-def topological_sort(graph: Graph) -> List[Hashable]:
+    Returns:
+        List[Hashable]: A valid topological sorting for the provided graph.
+    """
     perm_mark: Set[Hashable] = set()
     topo_order: List[Hashable] = []
 
