@@ -107,7 +107,61 @@ def recursive_topological_sort(graph: Graph) -> List[Hashable]:
 
 
 def topological_sort_iterative(graph: Graph) -> List[Hashable]:
-    """Perform a topological sort recursively on a graph.
+    """Perform a topological sort iteratively on a graph.
+
+    Args:
+        graph (Graph): A graph to perform sorting on.
+
+    Raises:
+        RuntimeError: Raised when a cycle is detected in provided graph.
+
+    Returns:
+        List[Hashable]: A valid topological sorting for the provided graph.
+    """
+
+    perm_mark: Set[Hashable] = set()
+    temp_mark: Set[Hashable] = set()
+    topo_order: List[Hashable] = []
+    stack: List[Hashable] = []
+
+    for node in graph:
+        # We do not need to consider nodes that
+        if node in perm_mark:
+            continue
+
+        dfs_stack = [node]
+        while dfs_stack:
+            v = dfs_stack.pop()
+
+            if v in temp_mark:
+                raise RuntimeError()
+
+            if v in perm_mark:
+                continue
+
+            temp_mark.add(v)
+            children = [n.destination for n in graph.get_neighbors(v)]
+            dfs_stack.extend(children)
+
+            while stack:
+                peek = set(
+                    [n.destination for n in graph.get_neighbors(stack[-1])]
+                )
+                if v in peek:
+                    break
+
+                child = stack.pop()
+                topo_order.append(child)
+                temp_mark.remove(child)
+                perm_mark.add(child)
+
+            stack.append(v)
+
+    return stack + topo_order[::-1]
+
+
+def topological_sort_iterative(graph: Graph) -> List[Hashable]:
+    """Perform a topological sort iteratively on a graph.
 
     Args:
         graph (Graph): A graph to perform sorting on.
@@ -119,51 +173,53 @@ def topological_sort_iterative(graph: Graph) -> List[Hashable]:
         List[Hashable]: A valid topological sorting for the provided graph.
     """
     perm_mark: Set[Hashable] = set()
+    temp_mark: Set[Hashable] = set()
     topo_order: List[Hashable] = []
+    stack: List[Hashable] = []
 
     for node in graph:
-        # We have already visited all nodes and there is no more work to
-        # do. Return the ordering.
-        if len(perm_mark) == len(graph):
-            return topo_order
-
-        # We've already permanently visited this node, do nothing with it.
         if node in perm_mark:
             continue
 
-        # Stacks for performing depth-first search
-        visit_stack: deque[Hashable] = deque()
-        path_stack: deque[Hashable] = deque()
-        temp_mark: Set[Hashable] = set()
+        dfs_stack = [node]
 
-        # Otherwise we have found a node that we want to explore
-        visit_stack.append(node)
-        while visit_stack:
-            # Pop the latest
-            cur_node = visit_stack.pop()
+        while dfs_stack:
+            v = dfs_stack.pop()
+            if v not in perm_mark:
+                perm_mark.add(v)  # no need to append to path any more
+                dfs_stack.extend(
+                    [n.destination for n in graph.get_neighbors(v)]
+                )
 
-            # If we hit a node that is temporily marked (under consideration)
-            # then we have found a cycle
-            if cur_node in temp_mark:
-                raise RuntimeError()
+                peek = (
+                    [n.destination for n in graph.get_neighbors(stack[-1])]
+                    if stack
+                    else []
+                )
 
-            # We've already permanently visited this node, do nothing with it.
-            if cur_node in perm_mark:
-                continue
+                while stack and v not in peek:  # new stuff here!
+                    topo_order.append(stack.pop())
+                stack.append(v)
 
-            # Add a temporary mark to denote that we've visited already
-            temp_mark.add(cur_node)
-            path_stack.append(cur_node)
+    return stack + topo_order[::-1]  # new return value!
 
-            for neighbor in graph.get_neighbors(cur_node):
-                visit_stack.append(neighbor.destination)
 
-        while path_stack:
-            cur_node = path_stack.pop()
-            perm_mark.add(cur_node)
-            topo_order.append(cur_node)
+def iterative_topological_sort(graph, start):
+    seen = set()
+    stack = []  # path variable is gone, stack and order are new
+    order = []  # order will be in reverse order at first
+    q = [start]
+    while q:
+        v = q.pop()
+        if v not in seen:
+            seen.add(v)  # no need to append to path any more
+            q.extend(graph[v])
 
-        return topo_order[::-1]
+            while stack and v not in graph[stack[-1]]:  # new stuff here!
+                order.append(stack.pop())
+            stack.append(v)
+
+    return stack + order[::-1]  # new return value!
 
 
 def detect_cycles(graph: Graph) -> bool:
