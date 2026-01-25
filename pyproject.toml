@@ -1,32 +1,38 @@
-[tool]
-[tool.poetry]
+[project]
 name = "pyaestro"
-version = "0.0.1a2"
 description = "A package of utilities structures for building workflows and workflow related tools."
-authors = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
-maintainers = ["Frank Di Natale <frank.dinatale1988@gmail.com>"]
 license = "MIT"
-include = ["pyaestro/core/datastructures/_schemas/graph.json"]
+license-files = ["LICENSE"]
+authors = [
+    { name = "Francesco Di Natale", email = "frank.dinatale1988@gmail.com" },
+]
+dynamic = ["version"]
+requires-python = ">=3.12"
+dependencies = [
+    "coloredlogs>=15.0.1",
+    "jsonschema>=4.26.0",
+    "psutil>=7.2.1",
+    "typing-extensions>=4.15.0",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.7,<4"
-coloredlogs = "^15.0.1"
-psutil = "^5.8.0"
-jsonschema = "^3.2.0"
-typing-extensions = {version = "^4.2.0", python = "<=3.7"}
-
-[tool.poetry.dev-dependencies]
-flake8 = "^3.9.2"
-coverage = "^5.5"
-pydocstyle = "^6.1.1"
-pytest = "^6.2.5"
-pre-commit = "^2.15.0"
-pytest-cov = "^2.12.1"
-
-
+# Build
 [build-system]
-requires = ["poetry-core>=1.0.8"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.black]
-line-length = 79
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+path = "pyaestro/__init__.py"
+
+[project.optional-dependencies]
+dev = [
+    "coverage>=7.13.1",
+    "flake8>=7.3.0",
+    "pre-commit>=4.5.1",
+    "pydocstyle>=6.3.0",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.14",
+]
